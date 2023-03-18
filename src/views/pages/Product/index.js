@@ -18,7 +18,11 @@ import {
 
 import TablePaginationActions from "../../../components/TablePaginationActions";
 import { ProductSevice } from "../../../network/productService";
-import { number_to_price, convertStatus } from "../../../ultis/Ultis";
+import {
+  number_to_price,
+  convertStatus,
+  scrollToTop,
+} from "../../../ultis/Ultis";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
@@ -119,6 +123,11 @@ function Product() {
     navigate("/product/create-product");
   };
 
+  const openEditProduct = (id) => {
+    scrollToTop();
+    navigate(`/product/edit-product/${id}`);
+  };
+
   return (
     <>
       <WrapperPages>
@@ -213,9 +222,6 @@ function Product() {
                   Hình ảnh
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Mô tả
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Giá
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
@@ -246,9 +252,6 @@ function Product() {
                         />
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {item.description}
-                      </TableCell>
-                      <TableCell style={{ width: 160 }} align="center">
                         {number_to_price(Number(item.price))}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
@@ -256,7 +259,11 @@ function Product() {
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         <Stack direction="row" spacing={1}>
-                          <IconButton aria-label="delete" color="primary">
+                          <IconButton
+                            aria-label="delete"
+                            color="primary"
+                            onClick={() => openEditProduct(item?._id)}
+                          >
                             <EditIcon />
                           </IconButton>
                           <IconButton
@@ -274,7 +281,7 @@ function Product() {
 
               {!(product?.length > 0) && (
                 <TableRow style={{ height: 53 }}>
-                  <TableCell colSpan={7} sx={{ textAlign: "center" }}>
+                  <TableCell colSpan={6} sx={{ textAlign: "center" }}>
                     Không có dữ liệu
                   </TableCell>
                 </TableRow>

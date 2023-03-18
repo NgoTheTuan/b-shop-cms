@@ -1,4 +1,6 @@
 import Chip from "@mui/material/Chip";
+import { ContentState, EditorState } from "draft-js";
+import htmlToDraft from "html-to-draftjs";
 
 export const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -74,4 +76,15 @@ export const convertStatus = (status) => {
       />
     );
   }
+};
+
+export const htmlToDraftUtil = (draftContent) => {
+  const blocksFromHtml = htmlToDraft(draftContent);
+  const { contentBlocks, entityMap } = blocksFromHtml;
+  const contentState = ContentState.createFromBlockArray(
+    contentBlocks,
+    entityMap
+  );
+  const editorState = EditorState.createWithContent(contentState);
+  return editorState;
 };

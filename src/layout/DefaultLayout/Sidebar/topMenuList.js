@@ -8,32 +8,32 @@ const index = [
   },
   {
     title: "Setting",
-    Icon: Icons.UserGridIcon,
+    Icon: Icons.SettingsOutlinedIcon,
     path: "/setting",
   },
   {
     title: "Product",
-    Icon: Icons.UserGridIcon,
+    Icon: Icons.ProductionQuantityLimitsOutlinedIcon,
     path: "/product",
   },
   {
-    title: "User List",
-    Icon: Icons.UserGridIcon,
+    title: "Category",
+    Icon: Icons.CategoryOutlinedIcon,
     path: "/dashboard/user-list",
   },
   {
-    title: "Add user",
-    Icon: Icons.UserGridIcon,
+    title: "Categories",
+    Icon: Icons.ClassOutlinedIcon,
     path: "/dashboard/add-user",
   },
   {
-    title: "Login",
-    Icon: Icons.UserGridIcon,
+    title: "News",
+    Icon: Icons.NewspaperOutlinedIcon,
     path: "/login",
   },
   {
-    title: "Register",
-    Icon: Icons.UserGridIcon,
+    title: "Transaction",
+    Icon: Icons.PaidOutlinedIcon,
     path: "/Register",
   },
 ];

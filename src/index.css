@@ -12,15 +12,63 @@ code {
     monospace;
 }
 
-.wrapper-class {
-  padding: 1rem;
-  border: 1px solid #ccc;
+.rdw-editor-wrapper .rdw-editor-toolbar {
+  margin-bottom: 0;
+  padding: 0.5rem;
+  padding-bottom: 0;
+  border-color: #E5EAF2;
+  border-top-left-radius: #E5EAF2;
+  border-top-right-radius: #E5EAF2;
 }
-.editor-class {
-  background-color:lightgray;
-  padding: 1rem;
-  border: 1px solid #ccc;
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-option-wrapper {
+  border: none;
 }
-.toolbar-class {
-  border: 1px solid #ccc;
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-option-wrapper.rdw-option-active {
+  box-shadow: none;
+  background-color: rgba(229, 234, 242, 0.2);
+}
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-option-wrapper:hover {
+  box-shadow: none;
+}
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-dropdown-wrapper {
+  border: 1px solid #E5EAF2;
+}
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-dropdown-wrapper .rdw-dropdown-optionwrapper:hover {
+  box-shadow: none;
+}
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-dropdown-wrapper:hover {
+  box-shadow: none;
+}
+.rdw-editor-wrapper .rdw-editor-toolbar .rdw-link-modal, .rdw-editor-wrapper .rdw-editor-toolbar .rdw-embedded-modal {
+  height: auto;
+}
+.rdw-editor-wrapper .rdw-editor-main {
+  min-height: 10rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid #E5EAF2;
+  border-bottom-left-radius: #E5EAF2;
+  border-bottom-right-radius: #E5EAF2;
+}
+.rdw-editor-wrapper .rdw-editor-toolbar ~ .rdw-editor-main {
+  border-top: none;
+}
+.rdw-editor-wrapper.toolbar-bottom {
+  display: flex;
+  flex-direction: column;
+}
+.rdw-editor-wrapper.toolbar-bottom .rdw-editor-toolbar {
+  order: 2;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: #E5EAF2;
+  border-bottom-right-radius: #E5EAF2;
+}
+.rdw-editor-wrapper.toolbar-bottom .rdw-editor-main {
+  border-top: 1px solid #E5EAF2;
+  border-bottom: 0;
+  border-top-left-radius: #E5EAF2;
+  border-top-right-radius: #E5EAF2;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  order: 1;
 }

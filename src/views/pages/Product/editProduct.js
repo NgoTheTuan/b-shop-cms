@@ -28,17 +28,27 @@ import FormHelperText from "@mui/material/FormHelperText";
 import { CategorySevice } from "../../../network/categoryService";
 import { ProductSevice } from "../../../network/productService";
 import { SettingSevice } from "../../../network/settingService";
-import { convertFileToBase64, scrollToTop } from "../../../ultis/Ultis";
+import {
+  convertFileToBase64,
+  scrollToTop,
+  htmlToDraftUtil,
+} from "../../../ultis/Ultis";
 
 import { Editor } from "react-draft-wysiwyg";
 import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
+import { useParams } from "react-router-dom";
+import { UploadFile } from "@mui/icons-material";
 
-function CreateProduct() {
+function EditProduct() {
+  const { id } = useParams();
+
+  const [product, setProduct] = useState();
   const [setting, setSetting] = useState();
   const navigate = useNavigate();
   const [categoryId, setCategoryId] = useState();
   const [categoryData, setCategoryData] = useState();
+  const [status, setStatus] = useState();
 
   const [checkImg, setCheckImg] = useState(false);
   const [fileUpload, setFileUpload] = useState();
@@ -55,6 +65,7 @@ function CreateProduct() {
     discount: 0,
     categoryId: "",
     image: "",
+    status: "",
   };
 
   const validationSchema = Yup.object().shape({
@@ -77,53 +88,96 @@ function CreateProduct() {
     handleChange,
     handleSubmit,
     setErrors,
+    setValues,
   } = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      if (urlImgUpdate) {
-        const product_description =
-          (valueDescription &&
-            draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
-          null;
-        console.log(product_description);
-        console.log(values);
-        console.log(categoryId);
+      console.log(values);
+      const product_description =
+        (valueDescription &&
+          draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
+        null;
 
-        try {
+      try {
+        if (fileUpload) {
           await SettingSevice.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductSevice.create({
+            await ProductSevice.edit({
+              productId: String(id),
               name: values.name || "",
               description: product_description || "",
               price: Number(values.price) || 0,
               discount: Number(values.discount) || 0,
               image: res?.url || "",
               categoryId: values.categoryId || 0,
+              status: values.status,
             }).then((res) => {
               if (res) {
-                toast.success("Thêm mới thành công!");
+                toast.success("Cập nhật thành công!");
                 scrollToTop();
                 navigate("/product");
               } else {
-                toast.error("Thêm mới không thành công.");
+                toast.error("Cập nhật không thành công.");
               }
             });
           });
-        } catch {}
-      }
+        } else {
+          await ProductSevice.edit({
+            productId: String(id),
+            name: values.name || "",
+            description: product_description || "",
+            price: Number(values.price) || 0,
+            discount: Number(values.discount) || 0,
+            image: values?.image || "",
+            categoryId: values.categoryId || 0,
+            status: values.status,
+          }).then((res) => {
+            if (res) {
+              toast.success("Cập nhật thành công!");
+              scrollToTop();
+              navigate("/product");
+            } else {
+              toast.error("Cập nhật không thành công.");
+            }
+          });
+        }
+      } catch {}
     },
   });
 
   useEffect(() => {
     const getDataCategory = async () => {
       try {
-        await CategorySevice.getData().then((res) => {
-          if (res.length > 0) {
-            setCategoryData(res);
+        if (id) {
+          await CategorySevice.getData(id).then((res) => {
+            if (res.length > 0) {
+              setCategoryData(res);
+            }
+          });
+        }
+      } catch (error) {}
+    };
+    const getDetailProduct = async () => {
+      try {
+        await ProductSevice.getDetail(id).then((res) => {
+          if (res) {
+            // setProduct(res);
+            // setUrlImgUpdate(res?.image || "");
+            setValueDescription(htmlToDraftUtil(res?.description || " "));
+            setValues({
+              name: res?.name || "",
+              description: res?.description || "",
+              price: res?.price || "",
+              discount: res?.discount || "",
+              categoryId: res?.categoryId || "",
+              status: res?.status || "",
+              image: res?.image || "",
+            });
           }
         });
       } catch (error) {}
     };
+    getDetailProduct();
     getDataCategory();
   }, []);
 
@@ -134,13 +188,13 @@ function CreateProduct() {
     base64.then((res) => {
       setUrlImgUpdate(res);
       values.image = res;
-      // setValues({image: res})
       setErrors({
         name: errors.name,
         description: errors.description,
         price: errors.price,
         discount: errors.discount,
         categoryId: errors.categoryId,
+        status: errors.status,
         image: null,
       });
     });
@@ -149,7 +203,7 @@ function CreateProduct() {
   return (
     <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Thêm mới sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Chỉnh sửa sản phẩm</H1>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextWrapper>
@@ -164,6 +218,7 @@ function CreateProduct() {
                 onChange={handleChange}
                 error={Boolean(touched.name && errors.name)}
                 helperText={touched.name && errors.name}
+                value={values?.name || ""}
               />
             </TextWrapper>
           </Grid>
@@ -195,6 +250,7 @@ function CreateProduct() {
                 onChange={handleChange}
                 error={Boolean(touched.price && errors.price)}
                 helperText={touched.price && errors.price}
+                value={values?.price}
               />
             </TextWrapper>
           </Grid>
@@ -212,6 +268,7 @@ function CreateProduct() {
                 onChange={handleChange}
                 error={Boolean(touched.discount && errors.discount)}
                 helperText={touched.discount && errors.discount}
+                value={values?.discount}
               />
             </TextWrapper>
           </Grid>
@@ -224,6 +281,7 @@ function CreateProduct() {
               <Select
                 fullWidth
                 id="demo-simple-select"
+                value={values?.categoryId || 0}
                 onChange={handleChange}
                 name="categoryId"
                 error={Boolean(touched.categoryId && errors.categoryId)}
@@ -250,9 +308,37 @@ function CreateProduct() {
           </Grid>
 
           <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Trạng Thái
+              </Paragraph>
+              <Select
+                fullWidth
+                id="demo-simple-select"
+                value={String(values?.status) || "0"}
+                onChange={handleChange}
+                name="status"
+                error={Boolean(touched.status && errors.status)}
+                sx={{
+                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
+                    borderRadius: "8px",
+                    border: "2px solid #E5EAF2",
+                  },
+                }}
+              >
+                <MenuItem value={1}>Hoạt động</MenuItem>
+                <MenuItem value={0}>Khoá</MenuItem>
+              </Select>
+              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
+                {touched.status && errors.status}
+              </FormHelperText>
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
             <Box sx={{ display: "flex" }}>
               <img
-                src={urlImgUpdate || ""}
+                src={urlImgUpdate || values?.image}
                 alt=""
                 style={{ width: "100px", height: "100px" }}
               />
@@ -278,10 +364,14 @@ function CreateProduct() {
             display: "flex",
             justifyContent: "flex-end",
             margin: "30px 0",
+            gap: "15px",
           }}
         >
           <Button type="submit" variant="contained">
-            Thêm
+            Cập nhật
+          </Button>
+          <Button variant="contained" onClick={() => navigate("/product")}>
+            Huỷ
           </Button>
         </Box>
       </WrapperPages>
@@ -289,4 +379,4 @@ function CreateProduct() {
   );
 }
 
-export default CreateProduct;
+export default EditProduct;

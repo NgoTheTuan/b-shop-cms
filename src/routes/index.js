@@ -10,6 +10,7 @@ import Setting from "../views/pages/Setting";
 import EditSetting from "../views/pages/Setting/edit";
 import Product from "../views/pages/Product";
 import CreateProduct from "../views/pages/Product/createProduct";
+import EditProduct from "../views/pages/Product/editProduct";
 
 const publicRoutes = [
   { path: "/login", component: AuthLogin, layout: AuthLayout },
@@ -26,6 +27,11 @@ const privateRoutes = [
   {
     path: "/product/create-product",
     component: CreateProduct,
+    layout: DefaultLayout,
+  },
+  {
+    path: "/product/edit-product/:id",
+    component: EditProduct,
     layout: DefaultLayout,
   },
 ];

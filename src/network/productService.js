@@ -44,4 +44,48 @@ export const ProductSevice = {
       });
     });
   },
+  create: async (data) => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/products",
+        method: "POST",
+        data: data,
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
+  getDetail: async (id) => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: `/products/find/${id}`,
+        method: "GET",
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
+  edit: async (data) => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/products",
+        method: "PUT",
+        data: data,
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
 };
