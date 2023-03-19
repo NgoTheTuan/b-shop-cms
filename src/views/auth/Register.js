@@ -21,7 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import AuthAction from "../../store/actions/auth";
-import { AuthSevice } from "../../network/authService";
+import { AuthService } from "../../network/authService";
 import logo from "../../assets/logo.jpg";
 
 function Register() {
@@ -57,7 +57,7 @@ function Register() {
       onSubmit: async (values) => {
         console.log(values);
         try {
-          await AuthSevice.register({
+          await AuthService.register({
             username: values.username,
             email: values.email,
             password: values.password,

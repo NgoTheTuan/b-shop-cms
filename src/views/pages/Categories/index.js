@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 
 import TablePaginationActions from "../../../components/TablePaginationActions";
-import { ProductService } from "../../../network/productService";
+import { CategoriesService } from "../../../network/categoriesService";
 import {
   number_to_price,
   convertStatus,
@@ -37,10 +37,10 @@ import LightTextField from "../../../components/LightTextField";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function Product() {
+function Categories() {
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -54,11 +54,11 @@ function Product() {
   const [filterText, setFilterText] = useState("");
   const [status, setStatus] = useState();
 
-  const getDataProduct = async () => {
+  const getDataCategories = async () => {
     try {
-      await ProductService.getData().then((res) => {
+      await CategoriesService.getData().then((res) => {
         if (res.length > 0) {
-          setProduct(
+          setCategories(
             res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
           );
           setData(res);
@@ -68,11 +68,11 @@ function Product() {
     } catch (error) {}
   };
   useEffect(() => {
-    getDataProduct();
+    getDataCategories();
   }, []);
 
   const handleChangePage = (page) => {
-    setProduct(
+    setCategories(
       data.slice(
         (page - 1) * rowsPerPage,
         (page - 1) * rowsPerPage + rowsPerPage
@@ -81,12 +81,12 @@ function Product() {
     setPage(page - 1);
   };
 
-  const deleteProduct = async () => {
+  const deleteItem = async () => {
     try {
-      await ProductService.delete(idDelete).then((res) => {
+      await CategoriesService.delete(idDelete).then((res) => {
         toast.success("Xoá thành công!");
         if (res) {
-          getDataProduct();
+          getDataCategories();
         }
         setOpen(false);
       });
@@ -102,13 +102,13 @@ function Product() {
     setOpen(false);
   };
 
-  const filterProduct = async () => {
+  const filterItem = async () => {
     try {
-      await ProductService.filter({
-        nameFilter: filterText.trim(),
+      await CategoriesService.filter({
+        titleFilter: filterText.trim(),
         status: status,
       }).then((res) => {
-        setProduct(
+        setCategories(
           res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         );
         setData(res);
@@ -117,19 +117,19 @@ function Product() {
     } catch (error) {}
   };
 
-  const openCreateProduct = () => {
-    navigate("/product/create-product");
+  const openCreateItem = () => {
+    navigate("/categories/create-categories");
   };
 
-  const openEditProduct = (id) => {
+  const openEditItem = (id) => {
     scrollToTop();
-    navigate(`/product/edit-product/${id}`);
+    navigate(`/categories/edit-categories/${id}`);
   };
 
   return (
     <>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Danh mục</H1>
 
         <Box
           sx={{
@@ -195,11 +195,11 @@ function Product() {
                 justifyContent: "space-between",
               }}
             >
-              <Button variant="contained" onClick={filterProduct}>
+              <Button variant="contained" onClick={filterItem}>
                 Tìm kiếm
               </Button>
 
-              <Button variant="contained" onClick={openCreateProduct}>
+              <Button variant="contained" onClick={openCreateItem}>
                 Thêm
               </Button>
             </Grid>
@@ -217,12 +217,6 @@ function Product() {
                   Tên
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Hình ảnh
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Giá
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Trạng thái
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
@@ -232,25 +226,15 @@ function Product() {
             </TableHead>
 
             <TableBody>
-              {product?.length > 0 &&
-                product?.map((item, index) => {
+              {categories?.length > 0 &&
+                categories?.map((item, index) => {
                   return (
                     <TableRow key={item.id}>
                       <TableCell style={{ width: 30 }} align="center">
                         {page * rowsPerPage + (index + 1)}
                       </TableCell>
                       <TableCell component="th" scope="item" align="center">
-                        {item.name}
-                      </TableCell>
-                      <TableCell style={{ width: 160 }} align="center">
-                        <img
-                          src={item.image}
-                          alt="product"
-                          style={{ width: "50px", height: "50px" }}
-                        />
-                      </TableCell>
-                      <TableCell style={{ width: 160 }} align="center">
-                        {number_to_price(Number(item.price))}
+                        {item.title}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         {convertStatus(Number(item.status))}
@@ -260,7 +244,7 @@ function Product() {
                           <IconButton
                             aria-label="delete"
                             color="primary"
-                            onClick={() => openEditProduct(item?._id)}
+                            onClick={() => openEditItem(item?._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -277,9 +261,9 @@ function Product() {
                   );
                 })}
 
-              {!(product?.length > 0) && (
+              {!(categories?.length > 0) && (
                 <TableRow style={{ height: 53 }}>
-                  <TableCell colSpan={6} sx={{ textAlign: "center" }}>
+                  <TableCell colSpan={4} sx={{ textAlign: "center" }}>
                     Không có dữ liệu
                   </TableCell>
                 </TableRow>
@@ -306,7 +290,7 @@ function Product() {
             {"Bạn chắc chắn muốn xoá sản phẩm?"}
           </DialogTitle>
           <DialogActions>
-            <Button variant="contained" onClick={deleteProduct}>
+            <Button variant="contained" onClick={deleteItem}>
               Xoá
             </Button>
             <Button variant="outlined" onClick={handleClose}>
@@ -319,4 +303,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default Categories;

@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 
 import TablePaginationActions from "../../../components/TablePaginationActions";
-import { ProductService } from "../../../network/productService";
+import { NewsService } from "../../../network/newsService";
 import {
   number_to_price,
   convertStatus,
@@ -37,10 +37,10 @@ import LightTextField from "../../../components/LightTextField";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function Product() {
+function News() {
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState([]);
+  const [news, setNews] = useState([]);
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -54,11 +54,11 @@ function Product() {
   const [filterText, setFilterText] = useState("");
   const [status, setStatus] = useState();
 
-  const getDataProduct = async () => {
+  const getDataNews = async () => {
     try {
-      await ProductService.getData().then((res) => {
+      await NewsService.getData().then((res) => {
         if (res.length > 0) {
-          setProduct(
+          setNews(
             res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
           );
           setData(res);
@@ -68,11 +68,11 @@ function Product() {
     } catch (error) {}
   };
   useEffect(() => {
-    getDataProduct();
+    getDataNews();
   }, []);
 
   const handleChangePage = (page) => {
-    setProduct(
+    setNews(
       data.slice(
         (page - 1) * rowsPerPage,
         (page - 1) * rowsPerPage + rowsPerPage
@@ -81,12 +81,12 @@ function Product() {
     setPage(page - 1);
   };
 
-  const deleteProduct = async () => {
+  const deleteNews = async () => {
     try {
-      await ProductService.delete(idDelete).then((res) => {
+      await NewsService.delete(idDelete).then((res) => {
         toast.success("Xoá thành công!");
         if (res) {
-          getDataProduct();
+          getDataNews();
         }
         setOpen(false);
       });
@@ -102,13 +102,13 @@ function Product() {
     setOpen(false);
   };
 
-  const filterProduct = async () => {
+  const filterNews = async () => {
     try {
-      await ProductService.filter({
-        nameFilter: filterText.trim(),
+      await NewsService.filter({
+        titleFilter: filterText.trim(),
         status: status,
       }).then((res) => {
-        setProduct(
+        setNews(
           res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         );
         setData(res);
@@ -117,13 +117,13 @@ function Product() {
     } catch (error) {}
   };
 
-  const openCreateProduct = () => {
-    navigate("/product/create-product");
+  const openCreateNews = () => {
+    navigate("/news/create-news");
   };
 
-  const openEditProduct = (id) => {
+  const openEditNews = (id) => {
     scrollToTop();
-    navigate(`/product/edit-product/${id}`);
+    navigate(`/news/edit-news/${id}`);
   };
 
   return (
@@ -147,7 +147,7 @@ function Product() {
             <Grid item md={4} xs={12}>
               <TextWrapper>
                 <Paragraph fontWeight={600} mb={1}>
-                  Tên sản phẩm
+                  Tiêu đề tin tức
                 </Paragraph>
                 <LightTextField
                   fullWidth
@@ -195,11 +195,11 @@ function Product() {
                 justifyContent: "space-between",
               }}
             >
-              <Button variant="contained" onClick={filterProduct}>
+              <Button variant="contained" onClick={filterNews}>
                 Tìm kiếm
               </Button>
 
-              <Button variant="contained" onClick={openCreateProduct}>
+              <Button variant="contained" onClick={openCreateNews}>
                 Thêm
               </Button>
             </Grid>
@@ -214,13 +214,13 @@ function Product() {
                   STT
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Tên
+                  Tiêu đề
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Hình ảnh
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Giá
+                  Tác giả
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Trạng thái
@@ -232,25 +232,25 @@ function Product() {
             </TableHead>
 
             <TableBody>
-              {product?.length > 0 &&
-                product?.map((item, index) => {
+              {news?.length > 0 &&
+                news?.map((item, index) => {
                   return (
                     <TableRow key={item.id}>
                       <TableCell style={{ width: 30 }} align="center">
                         {page * rowsPerPage + (index + 1)}
                       </TableCell>
                       <TableCell component="th" scope="item" align="center">
-                        {item.name}
+                        {item.title}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         <img
                           src={item.image}
-                          alt="product"
+                          alt=""
                           style={{ width: "50px", height: "50px" }}
                         />
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {number_to_price(Number(item.price))}
+                        {item.author}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         {convertStatus(Number(item.status))}
@@ -260,7 +260,7 @@ function Product() {
                           <IconButton
                             aria-label="delete"
                             color="primary"
-                            onClick={() => openEditProduct(item?._id)}
+                            onClick={() => openEditNews(item?._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -277,7 +277,7 @@ function Product() {
                   );
                 })}
 
-              {!(product?.length > 0) && (
+              {!(news?.length > 0) && (
                 <TableRow style={{ height: 53 }}>
                   <TableCell colSpan={6} sx={{ textAlign: "center" }}>
                     Không có dữ liệu
@@ -306,7 +306,7 @@ function Product() {
             {"Bạn chắc chắn muốn xoá sản phẩm?"}
           </DialogTitle>
           <DialogActions>
-            <Button variant="contained" onClick={deleteProduct}>
+            <Button variant="contained" onClick={deleteNews}>
               Xoá
             </Button>
             <Button variant="outlined" onClick={handleClose}>
@@ -319,4 +319,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default News;

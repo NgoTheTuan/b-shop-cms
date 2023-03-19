@@ -3,7 +3,7 @@ import { Grid, styled, Box, Button, Divider } from "@mui/material";
 import { H1, Paragraph } from "../../../components/Typography";
 import { TextWrapper } from "../../../components/StyledComponents";
 import { Link } from "react-router-dom";
-import { SettingSevice } from "../../../network/settingService";
+import { SettingService } from "../../../network/settingService";
 import { useEffect, useState } from "react";
 import { convertFileToBase64 } from "../../../ultis/Ultis";
 import toast from "react-hot-toast";
@@ -34,7 +34,7 @@ function Setting() {
   useEffect(() => {
     const getDataSetting = async () => {
       try {
-        await SettingSevice.getData().then((res) => {
+        await SettingService.getData().then((res) => {
           if (res.success) {
             setSetting({
               id: res.data[0]._id,
@@ -65,8 +65,8 @@ function Setting() {
 
   const uploadCoverImg = async () => {
     try {
-      await SettingSevice.uploadCoverImg(fileUpload).then(async (res) => {
-        await SettingSevice.update({
+      await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
+        await SettingService.update({
           id: setting?.id,
           data: {
             cover_image: res?.url,
@@ -119,7 +119,7 @@ function Setting() {
               component="label"
               onChange={handleFileUpload}
             >
-              Upload
+              Thay đổi
               <input hidden accept="image/*" multiple type="file" />
             </Button>
           ) : (

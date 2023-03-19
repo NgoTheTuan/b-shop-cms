@@ -2,58 +2,40 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import WrapperPages from "../../../components/Wrapper";
 import { Box, Grid, Button } from "@mui/material";
-
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import { TextWrapper } from "../../../components/StyledComponents";
 import { Paragraph, H1 } from "../../../components/Typography";
 import LightTextField from "../../../components/LightTextField";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import FormHelperText from "@mui/material/FormHelperText";
-import { CategoryService } from "../../../network/categoryService";
-import { ProductService } from "../../../network/productService";
 import { SettingService } from "../../../network/settingService";
+import { UserService } from "../../../network/userService";
 import { convertFileToBase64, scrollToTop } from "../../../ultis/Ultis";
+import { useParams } from "react-router-dom";
 
-import { Editor } from "react-draft-wysiwyg";
-import { convertToRaw, EditorState } from "draft-js";
-import draftToHtml from "draftjs-to-html";
+function EditUser() {
+  const { id } = useParams();
 
-function CreateProduct() {
-  const [setting, setSetting] = useState();
   const navigate = useNavigate();
-  const [categoryId, setCategoryId] = useState();
-  const [categoryData, setCategoryData] = useState();
 
-  const [checkImg, setCheckImg] = useState(false);
   const [fileUpload, setFileUpload] = useState();
   const [urlImgUpdate, setUrlImgUpdate] = useState("");
 
-  const [valueDescription, setValueDescription] = useState(
-    EditorState.createEmpty()
-  );
-
   let initialValues = {
     name: "",
-    description: "",
-    price: undefined,
-    discount: 0,
-    categoryId: "",
+    phone: "",
+    address: "",
     image: "",
+    status: "",
+    isAdmin: false,
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không được để trống tên sản phẩm"),
-    price: Yup.number()
-      .required("Không được để trống giá sản phẩm")
-      .min(0, "Giá lớn hơn hoặc bằng 0"),
-    discount: Yup.number()
-      .min(0, "Giảm giá lớn hơn hoặc bằng 0")
-      .max(99, "Giảm giá nhỏ hơn hoặc bằng 99"),
-    categoryId: Yup.string().required("Không được để trống thể loại sản phẩm"),
-    image: Yup.string().required("Chọn hình ảnh cho sản phẩm"),
+    name: Yup.string().required("Không được để trống tên người dùng"),
+    image: Yup.string().required("Chọn hình ảnh cho tài khoản"),
   });
 
   const {
@@ -64,54 +46,73 @@ function CreateProduct() {
     handleChange,
     handleSubmit,
     setErrors,
+    setValues,
   } = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      if (urlImgUpdate) {
-        const product_description =
-          (valueDescription &&
-            draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
-          null;
-        console.log(product_description);
-        console.log(values);
-        console.log(categoryId);
-
-        try {
-          await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductService.create({
-              name: values.name || "",
-              description: product_description || "",
-              price: Number(values.price) || 0,
-              discount: Number(values.discount) || 0,
-              image: res?.url || "",
-              categoryId: values.categoryId || 0,
-            }).then((res) => {
-              if (res) {
-                toast.success("Thêm mới thành công!");
-                scrollToTop();
-                navigate("/product");
-              } else {
-                toast.error("Thêm mới không thành công.");
-              }
-            });
+      console.log(values);
+      if (fileUpload) {
+        await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
+          await UserService.edit({
+            userId: id,
+            username: values.name || "",
+            avatar: res?.url || "",
+            address: values.address || "",
+            phone: values.phone || "",
+            status: values.status,
+            isAdmin: values.isAdmin,
+          }).then((res) => {
+            if (res) {
+              toast.success("Cập nhật thành công!");
+              scrollToTop();
+              navigate("/user");
+            } else {
+              toast.error("Cập nhật không thành công.");
+            }
           });
-        } catch {}
+        });
+      } else {
+        await UserService.edit({
+          userId: id,
+          username: values.name || "",
+          avatar: values.image || "",
+          address: values.address || "",
+          phone: values.phone || "",
+          status: values.status,
+          isAdmin: values.isAdmin,
+        }).then((res) => {
+          if (res) {
+            toast.success("Cập nhật thành công!");
+            scrollToTop();
+            navigate("/user");
+          } else {
+            toast.error("Cập nhật không thành công.");
+          }
+        });
       }
     },
   });
 
   useEffect(() => {
-    const getDataCategory = async () => {
+    const getDetailUser = async () => {
       try {
-        await CategoryService.getData().then((res) => {
-          if (res.length > 0) {
-            setCategoryData(res);
+        await UserService.getDetail(id).then((res) => {
+          console.log(res);
+          if (res) {
+            setValues({
+              name: res?.username || "",
+              phone: res?.phone || "",
+              address: res?.address || "",
+              image: res?.avatar || "",
+              status: res?.status || "",
+              isAdmin: res?.isAdmin || false,
+            });
           }
         });
       } catch (error) {}
     };
-    getDataCategory();
+    getDetailUser();
   }, []);
 
   const handleFileUpload = (file) => {
@@ -121,13 +122,9 @@ function CreateProduct() {
     base64.then((res) => {
       setUrlImgUpdate(res);
       values.image = res;
-      // setValues({image: res})
       setErrors({
         name: errors.name,
-        description: errors.description,
-        price: errors.price,
-        discount: errors.discount,
-        categoryId: errors.categoryId,
+        password: errors.password,
         image: null,
       });
     });
@@ -136,12 +133,12 @@ function CreateProduct() {
   return (
     <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Thêm mới sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Chỉnh sửa Tài khoản</H1>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Tên sản phẩm <span style={{ color: "red" }}>*</span>
+                Tên người dùng <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
@@ -151,6 +148,7 @@ function CreateProduct() {
                 onChange={handleChange}
                 error={Boolean(touched.name && errors.name)}
                 helperText={touched.name && errors.name}
+                value={values?.name || ""}
               />
             </TextWrapper>
           </Grid>
@@ -158,30 +156,17 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Mô tả
-              </Paragraph>
-
-              <Editor
-                editorState={valueDescription}
-                onEditorStateChange={(data) => setValueDescription(data)}
-                name="description"
-              />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Giá <span style={{ color: "red" }}>*</span>
+                Phone
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="price"
-                type="number"
+                name="phone"
+                type="text"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                error={Boolean(touched.price && errors.price)}
-                helperText={touched.price && errors.price}
+                error={Boolean(touched.phone && errors.phone)}
+                helperText={touched.phone && errors.phone}
+                value={values?.phone}
               />
             </TextWrapper>
           </Grid>
@@ -189,16 +174,17 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Giảm giá
+                Địa chỉ
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="discount"
-                type="number"
+                name="address"
+                type="text"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                error={Boolean(touched.discount && errors.discount)}
-                helperText={touched.discount && errors.discount}
+                error={Boolean(touched.address && errors.address)}
+                helperText={touched.address && errors.address}
+                value={values?.address}
               />
             </TextWrapper>
           </Grid>
@@ -206,14 +192,15 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Thể loại sản phẩm <span style={{ color: "red" }}>*</span>
+                Trạng Thái
               </Paragraph>
               <Select
                 fullWidth
                 id="demo-simple-select"
+                value={String(values?.status) || "0"}
                 onChange={handleChange}
-                name="categoryId"
-                error={Boolean(touched.categoryId && errors.categoryId)}
+                name="status"
+                error={Boolean(touched.status && errors.status)}
                 sx={{
                   "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
                     borderRadius: "8px",
@@ -221,17 +208,39 @@ function CreateProduct() {
                   },
                 }}
               >
-                {categoryData?.length > 0 &&
-                  categoryData?.map((item) => {
-                    return (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.title}
-                      </MenuItem>
-                    );
-                  })}
+                <MenuItem value={1}>Hoạt động</MenuItem>
+                <MenuItem value={0}>Khoá</MenuItem>
               </Select>
               <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-                {touched.categoryId && errors.categoryId}
+                {touched.status && errors.status}
+              </FormHelperText>
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Chức năng
+              </Paragraph>
+              <Select
+                fullWidth
+                id="demo-simple-select"
+                value={values?.isAdmin || false}
+                onChange={handleChange}
+                name="isAdmin"
+                error={Boolean(touched.isAdmin && errors.isAdmin)}
+                sx={{
+                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
+                    borderRadius: "8px",
+                    border: "2px solid #E5EAF2",
+                  },
+                }}
+              >
+                <MenuItem value={true}>Admin</MenuItem>
+                <MenuItem value={false}>User</MenuItem>
+              </Select>
+              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
+                {touched.isAdmin && errors.isAdmin}
               </FormHelperText>
             </TextWrapper>
           </Grid>
@@ -239,7 +248,7 @@ function CreateProduct() {
           <Grid item xs={12}>
             <Box sx={{ display: "flex" }}>
               <img
-                src={urlImgUpdate || ""}
+                src={urlImgUpdate || values?.image}
                 alt=""
                 style={{ width: "100px", height: "100px" }}
               />
@@ -256,7 +265,7 @@ function CreateProduct() {
             </Box>
 
             <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-              {touched.categoryId && errors.image}
+              {touched.image && errors.image}
             </FormHelperText>
           </Grid>
         </Grid>
@@ -269,10 +278,9 @@ function CreateProduct() {
           }}
         >
           <Button type="submit" variant="contained">
-            Thêm
+            Cập nhật
           </Button>
-
-          <Button variant="contained" onClick={() => navigate("/product")}>
+          <Button variant="contained" onClick={() => navigate("/user")}>
             Huỷ
           </Button>
         </Box>
@@ -281,4 +289,4 @@ function CreateProduct() {
   );
 }
 
-export default CreateProduct;
+export default EditUser;

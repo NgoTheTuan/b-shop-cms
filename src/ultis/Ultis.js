@@ -1,15 +1,16 @@
 import Chip from "@mui/material/Chip";
 import { ContentState, EditorState } from "draft-js";
 import htmlToDraft from "html-to-draftjs";
+import moment from "moment";
 
 export const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-// export const formatDateTime = (dateTime) => {
-//   let momentDate = moment(dateTime).utc().zone("UTC+09");
-//   return momentDate.format("YYYY-MM-DD HH:mm:ss");
-// };
+export const formatDateTime = (dateTime) => {
+  let momentDate = moment(dateTime).utc().zone("UTC+09");
+  return momentDate.format("YYYY-MM-DD HH:mm:ss");
+};
 
 export const number_to_price = (v) => {
   if (v === 0) {
@@ -71,6 +72,46 @@ export const convertStatus = (status) => {
         sx={{
           color: "#ea5455",
           backgroundColor: "rgba(234,84,85,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  }
+};
+
+export const convertStatusTransaction = (status) => {
+  if (status === 1) {
+    return (
+      <Chip
+        label="Đã Thanh Toán"
+        color="success"
+        sx={{
+          color: "#28c76f",
+          backgroundColor: "rgba(40,199,111,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  } else if (status === 2) {
+    return (
+      <Chip
+        label="Từ Chối"
+        color="error"
+        sx={{
+          color: "#ea5455",
+          backgroundColor: "rgba(234,84,85,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  } else if (status === 0) {
+    return (
+      <Chip
+        label="Đang Chờ"
+        color="warning"
+        sx={{
+          color: "#ff9f43",
+          backgroundColor: "rgba(255,159,67,.22)",
           fontWeight: "600",
         }}
       />

@@ -1,6 +1,6 @@
 import Request from "./request";
 
-export const AuthSevice = {
+export const AuthService = {
   login: async (data) => {
     return new Promise((resolve) => {
       Request.send({

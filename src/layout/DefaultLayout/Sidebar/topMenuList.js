@@ -2,39 +2,39 @@ import Icons from "../../../components/icons/Sidebar";
 
 const index = [
   {
-    title: "Dashboard",
-    Icon: Icons.UserGridIcon,
-    path: "/dashboard",
-  },
-  {
-    title: "Setting",
+    title: "Cài đặt chung",
     Icon: Icons.SettingsOutlinedIcon,
     path: "/setting",
   },
   {
-    title: "Product",
+    title: "Tài khoản",
+    Icon: Icons.PersonOutlineOutlinedIcon,
+    path: "/user",
+  },
+  {
+    title: "Sản phẩm",
     Icon: Icons.ProductionQuantityLimitsOutlinedIcon,
     path: "/product",
   },
   {
-    title: "Category",
-    Icon: Icons.CategoryOutlinedIcon,
-    path: "/dashboard/user-list",
-  },
-  {
-    title: "Categories",
+    title: "Danh mục",
     Icon: Icons.ClassOutlinedIcon,
-    path: "/dashboard/add-user",
+    path: "/categories",
   },
   {
-    title: "News",
+    title: "Thể loại",
+    Icon: Icons.CategoryOutlinedIcon,
+    path: "/category",
+  },
+  {
+    title: "Tin tức",
     Icon: Icons.NewspaperOutlinedIcon,
-    path: "/login",
+    path: "/news",
   },
   {
-    title: "Transaction",
+    title: "Giao dịch",
     Icon: Icons.PaidOutlinedIcon,
-    path: "/Register",
+    path: "/transaction",
   },
 ];
 

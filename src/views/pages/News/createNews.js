@@ -13,21 +13,19 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import FormHelperText from "@mui/material/FormHelperText";
 import { CategoryService } from "../../../network/categoryService";
-import { ProductService } from "../../../network/productService";
+import { NewsService } from "../../../network/newsService";
 import { SettingService } from "../../../network/settingService";
 import { convertFileToBase64, scrollToTop } from "../../../ultis/Ultis";
 
 import { Editor } from "react-draft-wysiwyg";
 import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
+import { useSelector } from "react-redux";
 
-function CreateProduct() {
-  const [setting, setSetting] = useState();
+function CreateNews() {
+  const user = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const [categoryId, setCategoryId] = useState();
-  const [categoryData, setCategoryData] = useState();
 
-  const [checkImg, setCheckImg] = useState(false);
   const [fileUpload, setFileUpload] = useState();
   const [urlImgUpdate, setUrlImgUpdate] = useState("");
 
@@ -36,24 +34,14 @@ function CreateProduct() {
   );
 
   let initialValues = {
-    name: "",
+    title: "",
     description: "",
-    price: undefined,
-    discount: 0,
-    categoryId: "",
     image: "",
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không được để trống tên sản phẩm"),
-    price: Yup.number()
-      .required("Không được để trống giá sản phẩm")
-      .min(0, "Giá lớn hơn hoặc bằng 0"),
-    discount: Yup.number()
-      .min(0, "Giảm giá lớn hơn hoặc bằng 0")
-      .max(99, "Giảm giá nhỏ hơn hoặc bằng 99"),
-    categoryId: Yup.string().required("Không được để trống thể loại sản phẩm"),
-    image: Yup.string().required("Chọn hình ảnh cho sản phẩm"),
+    title: Yup.string().required("Không được để trống tiêu đề tin tức"),
+    image: Yup.string().required("Chọn hình ảnh cho tin tức"),
   });
 
   const {
@@ -69,28 +57,24 @@ function CreateProduct() {
     validationSchema,
     onSubmit: async (values) => {
       if (urlImgUpdate) {
-        const product_description =
+        const news_description =
           (valueDescription &&
             draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
           null;
-        console.log(product_description);
+        console.log(news_description);
         console.log(values);
-        console.log(categoryId);
-
         try {
           await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductService.create({
-              name: values.name || "",
-              description: product_description || "",
-              price: Number(values.price) || 0,
-              discount: Number(values.discount) || 0,
+            await NewsService.create({
+              title: values.title || "",
+              description: news_description || "",
+              author: user?.username || "",
               image: res?.url || "",
-              categoryId: values.categoryId || 0,
             }).then((res) => {
               if (res) {
                 toast.success("Thêm mới thành công!");
                 scrollToTop();
-                navigate("/product");
+                navigate("/news");
               } else {
                 toast.error("Thêm mới không thành công.");
               }
@@ -101,19 +85,6 @@ function CreateProduct() {
     },
   });
 
-  useEffect(() => {
-    const getDataCategory = async () => {
-      try {
-        await CategoryService.getData().then((res) => {
-          if (res.length > 0) {
-            setCategoryData(res);
-          }
-        });
-      } catch (error) {}
-    };
-    getDataCategory();
-  }, []);
-
   const handleFileUpload = (file) => {
     const files = file.target.files[0];
     setFileUpload(files);
@@ -121,13 +92,10 @@ function CreateProduct() {
     base64.then((res) => {
       setUrlImgUpdate(res);
       values.image = res;
-      // setValues({image: res})
       setErrors({
-        name: errors.name,
+        title: errors.title,
         description: errors.description,
-        price: errors.price,
-        discount: errors.discount,
-        categoryId: errors.categoryId,
+        description: errors.description,
         image: null,
       });
     });
@@ -141,16 +109,16 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Tên sản phẩm <span style={{ color: "red" }}>*</span>
+                Tiêu đề <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="name"
+                name="title"
                 type="text"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                error={Boolean(touched.name && errors.name)}
-                helperText={touched.name && errors.name}
+                error={Boolean(touched.title && errors.title)}
+                helperText={touched.title && errors.title}
               />
             </TextWrapper>
           </Grid>
@@ -166,73 +134,6 @@ function CreateProduct() {
                 onEditorStateChange={(data) => setValueDescription(data)}
                 name="description"
               />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Giá <span style={{ color: "red" }}>*</span>
-              </Paragraph>
-              <LightTextField
-                fullWidth
-                name="price"
-                type="number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                error={Boolean(touched.price && errors.price)}
-                helperText={touched.price && errors.price}
-              />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Giảm giá
-              </Paragraph>
-              <LightTextField
-                fullWidth
-                name="discount"
-                type="number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                error={Boolean(touched.discount && errors.discount)}
-                helperText={touched.discount && errors.discount}
-              />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Thể loại sản phẩm <span style={{ color: "red" }}>*</span>
-              </Paragraph>
-              <Select
-                fullWidth
-                id="demo-simple-select"
-                onChange={handleChange}
-                name="categoryId"
-                error={Boolean(touched.categoryId && errors.categoryId)}
-                sx={{
-                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
-                    borderRadius: "8px",
-                    border: "2px solid #E5EAF2",
-                  },
-                }}
-              >
-                {categoryData?.length > 0 &&
-                  categoryData?.map((item) => {
-                    return (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.title}
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-                {touched.categoryId && errors.categoryId}
-              </FormHelperText>
             </TextWrapper>
           </Grid>
 
@@ -256,7 +157,7 @@ function CreateProduct() {
             </Box>
 
             <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-              {touched.categoryId && errors.image}
+              {touched.image && errors.image}
             </FormHelperText>
           </Grid>
         </Grid>
@@ -272,7 +173,7 @@ function CreateProduct() {
             Thêm
           </Button>
 
-          <Button variant="contained" onClick={() => navigate("/product")}>
+          <Button variant="contained" onClick={() => navigate("/news")}>
             Huỷ
           </Button>
         </Box>
@@ -281,4 +182,4 @@ function CreateProduct() {
   );
 }
 
-export default CreateProduct;
+export default CreateNews;

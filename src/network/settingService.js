@@ -1,6 +1,6 @@
 import Request from "./request";
 
-export const SettingSevice = {
+export const SettingService = {
   getData: async () => {
     return new Promise((resolve) => {
       Request.send({

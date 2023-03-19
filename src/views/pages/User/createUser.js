@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import WrapperPages from "../../../components/Wrapper";
 import { Box, Grid, Button } from "@mui/material";
@@ -6,54 +6,37 @@ import { Box, Grid, Button } from "@mui/material";
 import { TextWrapper } from "../../../components/StyledComponents";
 import { Paragraph, H1 } from "../../../components/Typography";
 import LightTextField from "../../../components/LightTextField";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import FormHelperText from "@mui/material/FormHelperText";
-import { CategoryService } from "../../../network/categoryService";
-import { ProductService } from "../../../network/productService";
 import { SettingService } from "../../../network/settingService";
+import { UserService } from "../../../network/userService";
 import { convertFileToBase64, scrollToTop } from "../../../ultis/Ultis";
 
-import { Editor } from "react-draft-wysiwyg";
-import { convertToRaw, EditorState } from "draft-js";
-import draftToHtml from "draftjs-to-html";
-
-function CreateProduct() {
-  const [setting, setSetting] = useState();
+function CreateUser() {
   const navigate = useNavigate();
-  const [categoryId, setCategoryId] = useState();
-  const [categoryData, setCategoryData] = useState();
-
-  const [checkImg, setCheckImg] = useState(false);
   const [fileUpload, setFileUpload] = useState();
   const [urlImgUpdate, setUrlImgUpdate] = useState("");
 
-  const [valueDescription, setValueDescription] = useState(
-    EditorState.createEmpty()
-  );
-
   let initialValues = {
     name: "",
-    description: "",
-    price: undefined,
-    discount: 0,
-    categoryId: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
     image: "",
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không được để trống tên sản phẩm"),
-    price: Yup.number()
-      .required("Không được để trống giá sản phẩm")
-      .min(0, "Giá lớn hơn hoặc bằng 0"),
-    discount: Yup.number()
-      .min(0, "Giảm giá lớn hơn hoặc bằng 0")
-      .max(99, "Giảm giá nhỏ hơn hoặc bằng 99"),
-    categoryId: Yup.string().required("Không được để trống thể loại sản phẩm"),
-    image: Yup.string().required("Chọn hình ảnh cho sản phẩm"),
+    name: Yup.string().required("Không được để trống tên người dùng"),
+    email: Yup.string()
+      .email("Phải là một email hợp lệ")
+      .required("Không được để trống giá sản phẩm"),
+    password: Yup.string()
+      .min(6, "Mật khẩu phải có 6 kí tự trở lên")
+      .required("Không được bỏ trống mặt khẩu"),
+    image: Yup.string().required("Chọn hình ảnh cho tài khoản"),
   });
 
   const {
@@ -69,28 +52,20 @@ function CreateProduct() {
     validationSchema,
     onSubmit: async (values) => {
       if (urlImgUpdate) {
-        const product_description =
-          (valueDescription &&
-            draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
-          null;
-        console.log(product_description);
-        console.log(values);
-        console.log(categoryId);
-
         try {
           await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductService.create({
-              name: values.name || "",
-              description: product_description || "",
-              price: Number(values.price) || 0,
-              discount: Number(values.discount) || 0,
-              image: res?.url || "",
-              categoryId: values.categoryId || 0,
+            await UserService.create({
+              username: values.name || "",
+              email: values.email || "",
+              password: values.password || "",
+              avatar: res?.url || "",
+              address: values.address || "",
+              phone: values.phone || "",
             }).then((res) => {
               if (res) {
                 toast.success("Thêm mới thành công!");
                 scrollToTop();
-                navigate("/product");
+                navigate("/user");
               } else {
                 toast.error("Thêm mới không thành công.");
               }
@@ -101,19 +76,6 @@ function CreateProduct() {
     },
   });
 
-  useEffect(() => {
-    const getDataCategory = async () => {
-      try {
-        await CategoryService.getData().then((res) => {
-          if (res.length > 0) {
-            setCategoryData(res);
-          }
-        });
-      } catch (error) {}
-    };
-    getDataCategory();
-  }, []);
-
   const handleFileUpload = (file) => {
     const files = file.target.files[0];
     setFileUpload(files);
@@ -121,13 +83,10 @@ function CreateProduct() {
     base64.then((res) => {
       setUrlImgUpdate(res);
       values.image = res;
-      // setValues({image: res})
       setErrors({
         name: errors.name,
-        description: errors.description,
-        price: errors.price,
-        discount: errors.discount,
-        categoryId: errors.categoryId,
+        email: errors.email,
+        password: errors.password,
         image: null,
       });
     });
@@ -136,12 +95,12 @@ function CreateProduct() {
   return (
     <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Thêm mới sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Thêm mới Tài khoản</H1>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Tên sản phẩm <span style={{ color: "red" }}>*</span>
+                Tên người dùng <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
@@ -158,30 +117,16 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Mô tả
-              </Paragraph>
-
-              <Editor
-                editorState={valueDescription}
-                onEditorStateChange={(data) => setValueDescription(data)}
-                name="description"
-              />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Giá <span style={{ color: "red" }}>*</span>
+                Email <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="price"
-                type="number"
+                name="email"
+                type="email"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                error={Boolean(touched.price && errors.price)}
-                helperText={touched.price && errors.price}
+                error={Boolean(touched.email && errors.email)}
+                helperText={touched.email && errors.email}
               />
             </TextWrapper>
           </Grid>
@@ -189,16 +134,16 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Giảm giá
+                Mật khẩu <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="discount"
-                type="number"
+                name="password"
+                type="password"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                error={Boolean(touched.discount && errors.discount)}
-                helperText={touched.discount && errors.discount}
+                error={Boolean(touched.password && errors.password)}
+                helperText={touched.password && errors.password}
               />
             </TextWrapper>
           </Grid>
@@ -206,33 +151,34 @@ function CreateProduct() {
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Thể loại sản phẩm <span style={{ color: "red" }}>*</span>
+                Phone
               </Paragraph>
-              <Select
+              <LightTextField
                 fullWidth
-                id="demo-simple-select"
+                name="phone"
+                type="text"
+                onBlur={handleBlur}
                 onChange={handleChange}
-                name="categoryId"
-                error={Boolean(touched.categoryId && errors.categoryId)}
-                sx={{
-                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
-                    borderRadius: "8px",
-                    border: "2px solid #E5EAF2",
-                  },
-                }}
-              >
-                {categoryData?.length > 0 &&
-                  categoryData?.map((item) => {
-                    return (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.title}
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-                {touched.categoryId && errors.categoryId}
-              </FormHelperText>
+                error={Boolean(touched.phone && errors.phone)}
+                helperText={touched.phone && errors.phone}
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Địa chỉ
+              </Paragraph>
+              <LightTextField
+                fullWidth
+                name="address"
+                type="text"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                error={Boolean(touched.address && errors.address)}
+                helperText={touched.address && errors.address}
+              />
             </TextWrapper>
           </Grid>
 
@@ -256,7 +202,7 @@ function CreateProduct() {
             </Box>
 
             <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-              {touched.categoryId && errors.image}
+              {touched.image && errors.image}
             </FormHelperText>
           </Grid>
         </Grid>
@@ -272,7 +218,7 @@ function CreateProduct() {
             Thêm
           </Button>
 
-          <Button variant="contained" onClick={() => navigate("/product")}>
+          <Button variant="contained" onClick={() => navigate("/user")}>
             Huỷ
           </Button>
         </Box>
@@ -281,4 +227,4 @@ function CreateProduct() {
   );
 }
 
-export default CreateProduct;
+export default CreateUser;

@@ -28,6 +28,7 @@ import FormHelperText from "@mui/material/FormHelperText";
 import { CategoryService } from "../../../network/categoryService";
 import { ProductService } from "../../../network/productService";
 import { SettingService } from "../../../network/settingService";
+import { NewsService } from "../../../network/newsService";
 import {
   convertFileToBase64,
   scrollToTop,
@@ -40,7 +41,7 @@ import draftToHtml from "draftjs-to-html";
 import { useParams } from "react-router-dom";
 import { UploadFile } from "@mui/icons-material";
 
-function EditProduct() {
+function EditNews() {
   const { id } = useParams();
 
   const [product, setProduct] = useState();
@@ -59,25 +60,14 @@ function EditProduct() {
   );
 
   let initialValues = {
-    name: "",
+    title: "",
     description: "",
-    price: undefined,
-    discount: 0,
-    categoryId: "",
     image: "",
-    status: "",
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không được để trống tên sản phẩm"),
-    price: Yup.number()
-      .required("Không được để trống giá sản phẩm")
-      .min(0, "Giá lớn hơn hoặc bằng 0"),
-    discount: Yup.number()
-      .min(0, "Giảm giá lớn hơn hoặc bằng 0")
-      .max(99, "Giảm giá nhỏ hơn hoặc bằng 99"),
-    categoryId: Yup.string().required("Không được để trống thể loại sản phẩm"),
-    image: Yup.string().required("Chọn hình ảnh cho sản phẩm"),
+    title: Yup.string().required("Không được để trống tiêu đề tin tức"),
+    image: Yup.string().required("Chọn hình ảnh cho tin tức"),
   });
 
   const {
@@ -94,48 +84,43 @@ function EditProduct() {
     validationSchema,
     onSubmit: async (values) => {
       console.log(values);
-      const product_description =
+      const news_description =
         (valueDescription &&
           draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
         null;
+      console.log(news_description);
 
       try {
         if (fileUpload) {
           await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductService.edit({
-              productId: String(id),
-              name: values.name || "",
-              description: product_description || "",
-              price: Number(values.price) || 0,
-              discount: Number(values.discount) || 0,
+            await NewsService.edit({
+              newsId: String(id),
+              title: values.title || "",
+              description: news_description || "",
               image: res?.url || "",
-              categoryId: values.categoryId || 0,
               status: values.status,
             }).then((res) => {
               if (res) {
                 toast.success("Cập nhật thành công!");
                 scrollToTop();
-                navigate("/product");
+                navigate("/news");
               } else {
                 toast.error("Cập nhật không thành công.");
               }
             });
           });
         } else {
-          await ProductService.edit({
-            productId: String(id),
-            name: values.name || "",
-            description: product_description || "",
-            price: Number(values.price) || 0,
-            discount: Number(values.discount) || 0,
-            image: values?.image || "",
-            categoryId: values.categoryId || 0,
+          await NewsService.edit({
+            newsId: String(id),
+            title: values.title || "",
+            description: news_description || "",
+            image: values.image || "",
             status: values.status,
           }).then((res) => {
             if (res) {
               toast.success("Cập nhật thành công!");
               scrollToTop();
-              navigate("/product");
+              navigate("/news");
             } else {
               toast.error("Cập nhật không thành công.");
             }
@@ -146,30 +131,14 @@ function EditProduct() {
   });
 
   useEffect(() => {
-    const getDataCategory = async () => {
+    const getDetailNews = async () => {
       try {
-        if (id) {
-          await CategoryService.getData(id).then((res) => {
-            if (res.length > 0) {
-              setCategoryData(res);
-            }
-          });
-        }
-      } catch (error) {}
-    };
-    const getDetailProduct = async () => {
-      try {
-        await ProductService.getDetail(id).then((res) => {
+        await NewsService.getDetail(id).then((res) => {
           if (res) {
-            // setProduct(res);
-            // setUrlImgUpdate(res?.image || "");
             setValueDescription(htmlToDraftUtil(res?.description || " "));
             setValues({
-              name: res?.name || "",
+              title: res?.title || "",
               description: res?.description || "",
-              price: res?.price || "",
-              discount: res?.discount || "",
-              categoryId: res?.categoryId || "",
               status: res?.status || "",
               image: res?.image || "",
             });
@@ -177,8 +146,7 @@ function EditProduct() {
         });
       } catch (error) {}
     };
-    getDetailProduct();
-    getDataCategory();
+    getDetailNews();
   }, []);
 
   const handleFileUpload = (file) => {
@@ -189,12 +157,9 @@ function EditProduct() {
       setUrlImgUpdate(res);
       values.image = res;
       setErrors({
-        name: errors.name,
+        title: errors.title,
         description: errors.description,
-        price: errors.price,
-        discount: errors.discount,
-        categoryId: errors.categoryId,
-        status: errors.status,
+        description: errors.description,
         image: null,
       });
     });
@@ -203,22 +168,22 @@ function EditProduct() {
   return (
     <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Chỉnh sửa sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Chỉnh sửa tin tức</H1>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Tên sản phẩm <span style={{ color: "red" }}>*</span>
+                Tiêu đề <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="name"
+                name="title"
                 type="text"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                error={Boolean(touched.name && errors.name)}
-                helperText={touched.name && errors.name}
-                value={values?.name || ""}
+                error={Boolean(touched.title && errors.title)}
+                helperText={touched.title && errors.title}
+                value={values?.title || ""}
               />
             </TextWrapper>
           </Grid>
@@ -234,76 +199,6 @@ function EditProduct() {
                 onEditorStateChange={(data) => setValueDescription(data)}
                 name="description"
               />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Giá <span style={{ color: "red" }}>*</span>
-              </Paragraph>
-              <LightTextField
-                fullWidth
-                name="price"
-                type="number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                error={Boolean(touched.price && errors.price)}
-                helperText={touched.price && errors.price}
-                value={values?.price}
-              />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Giảm giá
-              </Paragraph>
-              <LightTextField
-                fullWidth
-                name="discount"
-                type="number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                error={Boolean(touched.discount && errors.discount)}
-                helperText={touched.discount && errors.discount}
-                value={values?.discount}
-              />
-            </TextWrapper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextWrapper>
-              <Paragraph fontWeight={600} mb={1}>
-                Thể loại sản phẩm <span style={{ color: "red" }}>*</span>
-              </Paragraph>
-              <Select
-                fullWidth
-                id="demo-simple-select"
-                value={values?.categoryId || 0}
-                onChange={handleChange}
-                name="categoryId"
-                error={Boolean(touched.categoryId && errors.categoryId)}
-                sx={{
-                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
-                    borderRadius: "8px",
-                    border: "2px solid #E5EAF2",
-                  },
-                }}
-              >
-                {categoryData?.length > 0 &&
-                  categoryData?.map((item) => {
-                    return (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.title}
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-                {touched.categoryId && errors.categoryId}
-              </FormHelperText>
             </TextWrapper>
           </Grid>
 
@@ -355,7 +250,7 @@ function EditProduct() {
             </Box>
 
             <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
-              {touched.categoryId && errors.image}
+              {touched.image && errors.image}
             </FormHelperText>
           </Grid>
         </Grid>
@@ -370,7 +265,7 @@ function EditProduct() {
           <Button type="submit" variant="contained">
             Cập nhật
           </Button>
-          <Button variant="contained" onClick={() => navigate("/product")}>
+          <Button variant="contained" onClick={() => navigate("/news")}>
             Huỷ
           </Button>
         </Box>
@@ -379,4 +274,4 @@ function EditProduct() {
   );
 }
 
-export default EditProduct;
+export default EditNews;

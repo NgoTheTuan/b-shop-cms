@@ -7,7 +7,7 @@ import WrapperPages from "../../components/Wrapper";
 
 import { H1, Paragraph } from "../../components/Typography";
 import { TextWrapper } from "../../components/StyledComponents";
-import { AuthSevice } from "../../network/authService";
+import { AuthService } from "../../network/authService";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,7 @@ function UserSetting() {
         console.log(values);
 
         try {
-          await AuthSevice.changePassword({
+          await AuthService.changePassword({
             userId: user?._id,
             password: values?.password.trim(),
             newPassword: values?.newPassword.trim(),

@@ -21,7 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import AuthAction from "../../store/actions/auth";
-import { AuthSevice } from "../../network/authService";
+import { AuthService } from "../../network/authService";
 import logo from "../../assets/logo.jpg";
 
 function Login() {
@@ -38,7 +38,7 @@ function Login() {
   // form field value validation schema
   const validationSchema = Yup.object().shape({
     email: Yup.string()
-      .email("Must be a valid email")
+      .email("Phải là một email hợp lệ")
       .max(255)
       .required("Email is required"),
     password: Yup.string()
@@ -52,20 +52,28 @@ function Login() {
       validationSchema,
       onSubmit: async (values) => {
         try {
-          await AuthSevice.login({
+          await AuthService.login({
             email: values.email,
             password: values.password,
           }).then((res) => {
             if (res.success) {
-              dispatch({
-                type: AuthAction.LOGIN,
-                payload: {
-                  token: res.accessToken,
-                  user: res.user,
-                },
-              });
-              toast.success("Đăng nhập thành công !");
-              navigate("/");
+              if (res?.user?.isAdmin) {
+                if (res?.user?.status === 1) {
+                  dispatch({
+                    type: AuthAction.LOGIN,
+                    payload: {
+                      token: res.accessToken,
+                      user: res.user,
+                    },
+                  });
+                  toast.success("Đăng nhập thành công !");
+                  navigate("/");
+                } else {
+                  toast.error("Tài khoản hiện đang bị khoá.");
+                }
+              } else {
+                toast.error("Tài khoản hoặc mật khẩu không đúng.");
+              }
             } else {
               toast.error("Tài khoản hoặc mật khẩu không đúng.");
             }
@@ -153,13 +161,6 @@ function Login() {
               </Button>
             </Box>
           </form>
-
-          <Small margin="auto" mt={3} color="text.disabled">
-            Bạn chưa có tài khoản?{" "}
-            <Link to="/register">
-              <Small color="primary.main">Tạo một tài khoản</Small>
-            </Link>
-          </Small>
         </FlexBox>
       </Card>
     </FlexBox>

@@ -9,6 +9,7 @@ import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
 import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import NewspaperOutlinedIcon from "@mui/icons-material/NewspaperOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
   LoginIcon,
@@ -20,4 +21,5 @@ export default {
   ClassOutlinedIcon,
   PaidOutlinedIcon,
   NewspaperOutlinedIcon,
+  PersonOutlineOutlinedIcon,
 };

@@ -17,11 +17,12 @@ import {
 } from "@mui/material";
 
 import TablePaginationActions from "../../../components/TablePaginationActions";
-import { ProductService } from "../../../network/productService";
+import { TransactionService } from "../../../network/transactionService";
 import {
   number_to_price,
-  convertStatus,
   scrollToTop,
+  formatDateTime,
+  convertStatusTransaction,
 } from "../../../ultis/Ultis";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
@@ -37,10 +38,10 @@ import LightTextField from "../../../components/LightTextField";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function Product() {
+function Transaction() {
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState([]);
+  const [transaction, setTransaction] = useState([]);
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -54,11 +55,11 @@ function Product() {
   const [filterText, setFilterText] = useState("");
   const [status, setStatus] = useState();
 
-  const getDataProduct = async () => {
+  const getDataTransaction = async () => {
     try {
-      await ProductService.getData().then((res) => {
+      await TransactionService.getData().then((res) => {
         if (res.length > 0) {
-          setProduct(
+          setTransaction(
             res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
           );
           setData(res);
@@ -68,11 +69,11 @@ function Product() {
     } catch (error) {}
   };
   useEffect(() => {
-    getDataProduct();
+    getDataTransaction();
   }, []);
 
   const handleChangePage = (page) => {
-    setProduct(
+    setTransaction(
       data.slice(
         (page - 1) * rowsPerPage,
         (page - 1) * rowsPerPage + rowsPerPage
@@ -81,12 +82,12 @@ function Product() {
     setPage(page - 1);
   };
 
-  const deleteProduct = async () => {
+  const deleteTransaction = async () => {
     try {
-      await ProductService.delete(idDelete).then((res) => {
+      await TransactionService.delete(idDelete).then((res) => {
         toast.success("Xoá thành công!");
         if (res) {
-          getDataProduct();
+          getDataTransaction();
         }
         setOpen(false);
       });
@@ -102,13 +103,13 @@ function Product() {
     setOpen(false);
   };
 
-  const filterProduct = async () => {
+  const filterTransaction = async () => {
     try {
-      await ProductService.filter({
+      await TransactionService.filter({
         nameFilter: filterText.trim(),
         status: status,
       }).then((res) => {
-        setProduct(
+        setTransaction(
           res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         );
         setData(res);
@@ -117,19 +118,19 @@ function Product() {
     } catch (error) {}
   };
 
-  const openCreateProduct = () => {
-    navigate("/product/create-product");
+  const openCreateTransaction = () => {
+    navigate("/transaction/create-transaction");
   };
 
-  const openEditProduct = (id) => {
+  const openEditTransaction = (id) => {
     scrollToTop();
-    navigate(`/product/edit-product/${id}`);
+    navigate(`/transaction/edit-transaction/${id}`);
   };
 
   return (
     <>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Giao dịch</H1>
 
         <Box
           sx={{
@@ -147,7 +148,7 @@ function Product() {
             <Grid item md={4} xs={12}>
               <TextWrapper>
                 <Paragraph fontWeight={600} mb={1}>
-                  Tên sản phẩm
+                  Tên người dùng
                 </Paragraph>
                 <LightTextField
                   fullWidth
@@ -174,8 +175,9 @@ function Product() {
                     },
                   }}
                 >
-                  <MenuItem value={1}>Hoạt động</MenuItem>
-                  <MenuItem value={0}>Khoá</MenuItem>
+                  <MenuItem value={0}>Đang Chờ</MenuItem>
+                  <MenuItem value={1}>Đã Giao Dịch</MenuItem>
+                  <MenuItem value={2}>Từ Chối Giao Dịch</MenuItem>
                 </Select>
               </TextWrapper>
             </Grid>
@@ -195,12 +197,8 @@ function Product() {
                 justifyContent: "space-between",
               }}
             >
-              <Button variant="contained" onClick={filterProduct}>
+              <Button variant="contained" onClick={filterTransaction}>
                 Tìm kiếm
-              </Button>
-
-              <Button variant="contained" onClick={openCreateProduct}>
-                Thêm
               </Button>
             </Grid>
           </Grid>
@@ -217,10 +215,10 @@ function Product() {
                   Tên
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Hình ảnh
+                  Giá
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Giá
+                  Ngày tạo
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Trạng thái
@@ -232,8 +230,8 @@ function Product() {
             </TableHead>
 
             <TableBody>
-              {product?.length > 0 &&
-                product?.map((item, index) => {
+              {transaction?.length > 0 &&
+                transaction?.map((item, index) => {
                   return (
                     <TableRow key={item.id}>
                       <TableCell style={{ width: 30 }} align="center">
@@ -243,24 +241,21 @@ function Product() {
                         {item.name}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        <img
-                          src={item.image}
-                          alt="product"
-                          style={{ width: "50px", height: "50px" }}
-                        />
+                        {number_to_price(Number(item.total_money))}
+                      </TableCell>
+
+                      <TableCell style={{ width: 200 }} align="center">
+                        {formatDateTime(item.createdAt)}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {number_to_price(Number(item.price))}
-                      </TableCell>
-                      <TableCell style={{ width: 160 }} align="center">
-                        {convertStatus(Number(item.status))}
+                        {convertStatusTransaction(Number(item.status))}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         <Stack direction="row" spacing={1}>
                           <IconButton
                             aria-label="delete"
                             color="primary"
-                            onClick={() => openEditProduct(item?._id)}
+                            onClick={() => openEditTransaction(item?._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -277,7 +272,7 @@ function Product() {
                   );
                 })}
 
-              {!(product?.length > 0) && (
+              {!(transaction?.length > 0) && (
                 <TableRow style={{ height: 53 }}>
                   <TableCell colSpan={6} sx={{ textAlign: "center" }}>
                     Không có dữ liệu
@@ -303,10 +298,10 @@ function Product() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Bạn chắc chắn muốn xoá sản phẩm?"}
+            {"Bạn chắc chắn muốn xoá giao dịch?"}
           </DialogTitle>
           <DialogActions>
-            <Button variant="contained" onClick={deleteProduct}>
+            <Button variant="contained" onClick={deleteTransaction}>
               Xoá
             </Button>
             <Button variant="outlined" onClick={handleClose}>
@@ -319,4 +314,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default Transaction;

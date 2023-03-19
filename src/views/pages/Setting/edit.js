@@ -3,7 +3,7 @@ import { Grid, styled, Box, Button, Divider } from "@mui/material";
 import { H1, Paragraph } from "../../../components/Typography";
 import { TextWrapper } from "../../../components/StyledComponents";
 import { useNavigate } from "react-router-dom";
-import { SettingSevice } from "../../../network/settingService";
+import { SettingService } from "../../../network/settingService";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -24,7 +24,7 @@ function EditSetting() {
   useEffect(() => {
     const getDataSetting = async () => {
       try {
-        await SettingSevice.getData().then((res) => {
+        await SettingService.getData().then((res) => {
           if (res.success) {
             const setting = JSON.parse(res.data[0].section || "{}");
             values.shopTitle = setting?.shop_title || "";
@@ -54,7 +54,7 @@ function EditSetting() {
         console.log(values);
 
         try {
-          await SettingSevice.update({
+          await SettingService.update({
             id: setting?.id,
             data: {
               section: JSON.stringify({
@@ -170,10 +170,15 @@ function EditSetting() {
             display: "flex",
             justifyContent: "flex-end",
             margin: "30px 0",
+            gap: "15px",
           }}
         >
           <Button type="submit" variant="contained">
             Cập nhật
+          </Button>
+
+          <Button variant="contained" onClick={() => navigate("/")}>
+            Huỷ
           </Button>
         </Box>
       </WrapperPages>

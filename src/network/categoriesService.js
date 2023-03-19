@@ -1,10 +1,10 @@
 import Request from "./request";
 
-export const ProductService = {
+export const CategoriesService = {
   getData: async () => {
     return new Promise((resolve) => {
       Request.send({
-        path: "/products/get-all",
+        path: "/categories/get-all",
         method: "GET",
       }).then((res) => {
         if (res.success) {
@@ -18,7 +18,7 @@ export const ProductService = {
   delete: async (id) => {
     return new Promise((resolve) => {
       Request.send({
-        path: `/products/${id}`,
+        path: `/categories/${id}`,
         method: "DELETE",
       }).then((res) => {
         if (res.success) {
@@ -32,7 +32,7 @@ export const ProductService = {
   filter: async (data) => {
     return new Promise((resolve) => {
       Request.send({
-        path: "/products/filter",
+        path: "/categories/filter",
         method: "POST",
         data: data,
       }).then((res) => {
@@ -47,7 +47,7 @@ export const ProductService = {
   create: async (data) => {
     return new Promise((resolve) => {
       Request.send({
-        path: "/products",
+        path: "/categories",
         method: "POST",
         data: data,
       }).then((res) => {
@@ -62,7 +62,7 @@ export const ProductService = {
   getDetail: async (id) => {
     return new Promise((resolve) => {
       Request.send({
-        path: `/products/find/${id}`,
+        path: `/categories/find/${id}`,
         method: "GET",
       }).then((res) => {
         if (res.success) {
@@ -76,7 +76,7 @@ export const ProductService = {
   edit: async (data) => {
     return new Promise((resolve) => {
       Request.send({
-        path: "/products",
+        path: "/categories",
         method: "PUT",
         data: data,
       }).then((res) => {
