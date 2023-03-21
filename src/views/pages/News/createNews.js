@@ -104,7 +104,7 @@ function CreateNews() {
   return (
     <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Thêm mới sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Thêm mới tin tức</H1>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextWrapper>

@@ -129,7 +129,7 @@ function User() {
   return (
     <>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Sản phẩm</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Người dùng</H1>
 
         <Box
           sx={{
