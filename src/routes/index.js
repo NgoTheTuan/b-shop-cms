@@ -34,7 +34,7 @@ const publicRoutes = [
 ];
 
 const privateRoutes = [
-  { path: "/", component: Setting, layout: DefaultLayout },
+  { path: "/", component: Dashboard, layout: DefaultLayout },
   { path: "/user-setting", component: UserSetting, layout: DefaultLayout },
   { path: "/setting", component: Setting, layout: DefaultLayout },
   { path: "/setting-update", component: EditSetting, layout: DefaultLayout },

@@ -10,9 +10,20 @@ import * as Yup from "yup";
 import LightTextField from "../../../components/LightTextField";
 import toast from "react-hot-toast";
 
+import {
+  convertFileToBase64,
+  scrollToTop,
+  htmlToDraftUtil,
+} from "../../../ultis/Ultis";
+
+import { Editor } from "react-draft-wysiwyg";
+import { convertToRaw, EditorState } from "draft-js";
+import draftToHtml from "draftjs-to-html";
+
 function EditSetting() {
   const [setting, setSetting] = useState();
   const navigate = useNavigate();
+  const [valueContact, setValueContact] = useState(EditorState.createEmpty());
   let initialValues = {
     shopTitle: "",
     shopAdress: "",
@@ -32,6 +43,9 @@ function EditSetting() {
             values.shopPhone = setting?.shop_phone || "";
             values.shopEmail = setting?.shop_email || "";
             values.shopMap = setting?.shop_map || "";
+
+            setValueContact(htmlToDraftUtil(setting?.shop_contact || " "));
+
             setSetting({
               id: res.data[0]._id,
             });
@@ -51,7 +65,10 @@ function EditSetting() {
       initialValues,
       validationSchema,
       onSubmit: async (values) => {
-        console.log(values);
+        const contact =
+          (valueContact &&
+            draftToHtml(convertToRaw(valueContact?.getCurrentContent()))) ||
+          null;
 
         try {
           await SettingService.update({
@@ -63,6 +80,7 @@ function EditSetting() {
                 shop_phone: values.shopPhone,
                 shop_email: values.shopEmail,
                 shop_map: values.shopMap,
+                shop_contact: contact || "",
               }),
             },
           }).then((res) => {
@@ -160,7 +178,19 @@ function EditSetting() {
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.shopMap || ""}
-                sx={{ height: "150px" }}
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Giới thiệu
+              </Paragraph>
+              <Editor
+                editorState={valueContact}
+                onEditorStateChange={(data) => setValueContact(data)}
+                name="description"
               />
             </TextWrapper>
           </Grid>

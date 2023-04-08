@@ -200,6 +200,21 @@ function Setting() {
             </TextInfo>
           </TextWrapper>
         </Grid>
+
+        <Grid item xs={12} sx={{ margin: "10px 0px" }}>
+          <TextWrapper>
+            <Paragraph fontWeight={600} mb={1}>
+              Giới thiệu
+            </Paragraph>
+            <TextInfo sx={{ height: "400px" }}>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: setting?.section?.shop_contact || "",
+                }}
+              ></span>
+            </TextInfo>
+          </TextWrapper>
+        </Grid>
       </Grid>
     </WrapperPages>
   );

@@ -2,6 +2,11 @@ import Icons from "../../../components/icons/Sidebar";
 
 const index = [
   {
+    title: "Dashboard",
+    Icon: Icons.GridViewIcon,
+    path: "/",
+  },
+  {
     title: "Cài đặt chung",
     Icon: Icons.SettingsOutlinedIcon,
     path: "/setting",
