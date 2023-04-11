@@ -30,6 +30,7 @@ function EditSetting() {
     shopPhone: "",
     shopEmail: "",
     shopMap: "",
+    shopShip: 0,
   };
 
   useEffect(() => {
@@ -42,6 +43,7 @@ function EditSetting() {
             values.shopAdress = setting?.shop_address || "";
             values.shopPhone = setting?.shop_phone || "";
             values.shopEmail = setting?.shop_email || "";
+            values.shopShip = setting?.shop_ship || 0;
             values.shopMap = setting?.shop_map || "";
 
             setValueContact(htmlToDraftUtil(setting?.shop_contact || " "));
@@ -79,6 +81,7 @@ function EditSetting() {
                 shop_address: values.shopAdress,
                 shop_phone: values.shopPhone,
                 shop_email: values.shopEmail,
+                shop_ship: values.shopShip,
                 shop_map: values.shopMap,
                 shop_contact: contact || "",
               }),
@@ -86,7 +89,7 @@ function EditSetting() {
           }).then((res) => {
             if (res.success) {
               toast.success("Cập nhật thành công!");
-              navigate("/");
+              navigate("/setting");
             } else {
               toast.error("Cập nhật không thành công.");
             }
@@ -162,6 +165,24 @@ function EditSetting() {
                 value={values.shopEmail || ""}
                 error={Boolean(touched.shopEmail && errors.shopEmail)}
                 helperText={touched.shopEmail && errors.shopEmail}
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Phí Ship
+              </Paragraph>
+              <LightTextField
+                fullWidth
+                name="shopShip"
+                type="number"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.shopShip || ""}
+                error={Boolean(touched.shopShip && errors.shopShip)}
+                helperText={touched.shopShip && errors.shopShip}
               />
             </TextWrapper>
           </Grid>

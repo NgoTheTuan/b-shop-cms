@@ -10,8 +10,8 @@ const Wrapper = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     width: "100%",
     marginLeft: 0,
-    paddingLeft: "2rem",
-    paddingRight: "2rem",
+    paddingLeft: "10px",
+    paddingRight: "10px",
   },
 }));
 

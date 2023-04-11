@@ -88,4 +88,32 @@ export const TransactionService = {
       });
     });
   },
+  getSalesStatic: async () => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/payment/sales-statistics",
+        method: "GET",
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
+  getSalesStaticStatus: async () => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/payment/sales-statistics-status",
+        method: "GET",
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
 };

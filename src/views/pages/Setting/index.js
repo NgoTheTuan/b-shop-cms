@@ -5,7 +5,7 @@ import { TextWrapper } from "../../../components/StyledComponents";
 import { Link } from "react-router-dom";
 import { SettingService } from "../../../network/settingService";
 import { useEffect, useState } from "react";
-import { convertFileToBase64 } from "../../../ultis/Ultis";
+import { convertFileToBase64, number_to_price } from "../../../ultis/Ultis";
 import toast from "react-hot-toast";
 
 const TextInfo = styled(Box)(({ theme }) => ({
@@ -187,6 +187,17 @@ function Setting() {
               Email
             </Paragraph>
             <TextInfo>{setting?.section?.shop_email || ""}</TextInfo>
+          </TextWrapper>
+        </Grid>
+
+        <Grid item xs={12} sx={{ margin: "10px 0px" }}>
+          <TextWrapper>
+            <Paragraph fontWeight={600} mb={1}>
+              Phí Ship
+            </Paragraph>
+            <TextInfo>
+              {number_to_price(setting?.section?.shop_ship || 0)}đ
+            </TextInfo>
           </TextWrapper>
         </Grid>
 

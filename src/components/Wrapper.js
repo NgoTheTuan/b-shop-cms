@@ -11,7 +11,7 @@ const WrapperPage = styled(Box)(({ theme }) => ({
 function WrapperPages({ children }) {
   return (
     <WrapperPage>
-      <Card sx={{ padding: 4, width: "100%", height: "100%" }}>{children}</Card>
+      <Card sx={{ padding: 3, width: "100%", height: "100%" }}>{children}</Card>
     </WrapperPage>
   );
 }
