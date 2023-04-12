@@ -1,7 +1,7 @@
 import axios from "axios";
 import queryString from "query-string";
-// const API_URL = "https://bshopbe.onrender.com/api";
-const API_URL = "http://localhost:4000/api";
+const API_URL = "https://bshopbe.onrender.com/api";
+// const API_URL = "http://localhost:4000/api";
 const getQueryString = (query) => {
   const result = queryString.stringify(query);
 
