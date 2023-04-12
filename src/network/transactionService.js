@@ -116,4 +116,18 @@ export const TransactionService = {
       });
     });
   },
+  getDataLatest: async () => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/payment/get-latest",
+        method: "GET",
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
 };

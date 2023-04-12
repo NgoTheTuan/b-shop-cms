@@ -88,4 +88,19 @@ export const ProductService = {
       });
     });
   },
+  getSelling: async (data) => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/products/get-selling",
+        method: "POST",
+        data,
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res?.data);
+        } else {
+          return resolve(false);
+        }
+      });
+    });
+  },
 };

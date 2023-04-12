@@ -39,7 +39,7 @@ const SaaSCard = ({ card }) => {
       </Box>
       <Box mt={{ xs: "1rem", sm: 0 }}>
         <H5 color="text.disabled">{title}</H5>
-        {money ? <H3>{number_to_price(price)} VND</H3> : <H3>{price}</H3>}
+        {money ? <H3>{number_to_price(price)} đ</H3> : <H3>{price}</H3>}
       </Box>
     </StyledCard>
   );

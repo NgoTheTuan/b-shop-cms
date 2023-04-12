@@ -3,7 +3,7 @@ import { H2, H5 } from "../../../components/Typography";
 import Chart from "react-apexcharts";
 import { number_to_price } from "../../../ultis/Ultis";
 
-const TotalSpent = ({ dataChart, totalMoney }) => {
+const TotalSpent = ({ dataItem, dataChart, totalMoney }) => {
   let dateTimeNow = new Date();
   let yearNow = dateTimeNow.getFullYear();
 
@@ -14,20 +14,7 @@ const TotalSpent = ({ dataChart, totalMoney }) => {
         data: dataChart,
       },
     ],
-    categories: [
-      "Tháng 1",
-      "Tháng 2",
-      "Tháng 3",
-      "Tháng 4",
-      "Tháng 5",
-      "Tháng 6",
-      "Tháng 7",
-      "Tháng 8",
-      "Tháng 9",
-      "Tháng 10",
-      "Tháng 11",
-      "Tháng 12",
-    ],
+    categories: dataItem,
   };
   const theme = useTheme();
 
@@ -77,7 +64,7 @@ const TotalSpent = ({ dataChart, totalMoney }) => {
     tooltip: {
       x: { show: false },
       y: {
-        formatter: (val) => `${number_to_price(val)} VND`,
+        formatter: (val) => `${number_to_price(val)} đ`,
       },
     },
 
@@ -114,17 +101,9 @@ const TotalSpent = ({ dataChart, totalMoney }) => {
   const chartSeries = data.series;
 
   return (
-    <Card
-      sx={{
-        paddingX: 4,
-        height: "100%",
-        paddingBottom: "1.5rem",
-        paddingTop: "calc(1.5rem + 15px)",
-        [theme.breakpoints.down(425)]: { padding: "1.5rem" },
-      }}
-    >
+    <>
       <H5>Tổng tiền ({yearNow})</H5>
-      <H2 color="primary.main">{number_to_price(totalMoney)} VND</H2>
+      <H2 color="primary.main">{number_to_price(totalMoney)} đ</H2>
 
       <Box
         sx={{
@@ -153,7 +132,7 @@ const TotalSpent = ({ dataChart, totalMoney }) => {
           type="bar"
         />
       </Box>
-    </Card>
+    </>
   );
 };
 
