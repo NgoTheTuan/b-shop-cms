@@ -47,8 +47,6 @@ function UserSetting() {
       initialValues,
       validationSchema,
       onSubmit: async (values) => {
-        console.log(values);
-
         try {
           await AuthService.changePassword({
             userId: user?._id,

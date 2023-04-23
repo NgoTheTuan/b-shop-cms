@@ -4,7 +4,7 @@ import { useState, Fragment } from "react";
 import { Box, styled } from "@mui/material";
 const Wrapper = styled(Box)(({ theme }) => ({
   width: `calc(100% - 80px)`,
-  maxWidth: 1400,
+  maxWidth: "100%",
   margin: "auto",
   paddingLeft: 80,
   [theme.breakpoints.down("md")]: {

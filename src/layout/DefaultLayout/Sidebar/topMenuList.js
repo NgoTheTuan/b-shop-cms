@@ -17,6 +17,16 @@ const index = [
     path: "/user",
   },
   {
+    title: "Nhà cung cấp",
+    Icon: Icons.SupervisedUserCircleOutlinedIcon,
+    path: "/supplier",
+  },
+  {
+    title: "Nhà kho",
+    Icon: Icons.WarehouseOutlinedIcon,
+    path: "/warehouse",
+  },
+  {
     title: "Sản phẩm",
     Icon: Icons.ProductionQuantityLimitsOutlinedIcon,
     path: "/product",
@@ -40,6 +50,11 @@ const index = [
     title: "Giao dịch",
     Icon: Icons.PaidOutlinedIcon,
     path: "/transaction",
+  },
+  {
+    title: "Liên hệ",
+    Icon: Icons.ContactPhoneOutlinedIcon,
+    path: "/contact",
   },
 ];
 

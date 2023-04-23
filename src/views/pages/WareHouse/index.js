@@ -17,13 +17,8 @@ import {
 } from "@mui/material";
 
 import TablePaginationActions from "../../../components/TablePaginationActions";
-import { TransactionService } from "../../../network/transactionService";
-import {
-  number_to_price,
-  scrollToTop,
-  formatDateTime,
-  convertStatusTransaction,
-} from "../../../ultis/Ultis";
+import { WarehouseService } from "../../../network/wareHouseService";
+import { convertStatus, scrollToTop } from "../../../ultis/Ultis";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
@@ -38,10 +33,10 @@ import LightTextField from "../../../components/LightTextField";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function Transaction() {
+function Warehouse() {
   const navigate = useNavigate();
 
-  const [transaction, setTransaction] = useState([]);
+  const [wareHouse, serWareHouse] = useState([]);
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -55,11 +50,11 @@ function Transaction() {
   const [filterText, setFilterText] = useState("");
   const [status, setStatus] = useState();
 
-  const getDataTransaction = async () => {
+  const getDataWareHouse = async () => {
     try {
-      await TransactionService.getData().then((res) => {
+      await WarehouseService.getData().then((res) => {
         if (res.length > 0) {
-          setTransaction(
+          serWareHouse(
             res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
           );
           setData(res);
@@ -69,11 +64,11 @@ function Transaction() {
     } catch (error) {}
   };
   useEffect(() => {
-    getDataTransaction();
+    getDataWareHouse();
   }, []);
 
   const handleChangePage = (page) => {
-    setTransaction(
+    serWareHouse(
       data.slice(
         (page - 1) * rowsPerPage,
         (page - 1) * rowsPerPage + rowsPerPage
@@ -82,12 +77,12 @@ function Transaction() {
     setPage(page - 1);
   };
 
-  const deleteTransaction = async () => {
+  const deleteWareHouse = async () => {
     try {
-      await TransactionService.delete(idDelete).then((res) => {
+      await WarehouseService.delete(idDelete).then((res) => {
         toast.success("Xoá thành công!");
         if (res) {
-          getDataTransaction();
+          getDataWareHouse();
         }
         setOpen(false);
       });
@@ -103,13 +98,13 @@ function Transaction() {
     setOpen(false);
   };
 
-  const filterTransaction = async () => {
+  const filterNews = async () => {
     try {
-      await TransactionService.filter({
+      await WarehouseService.filter({
         nameFilter: filterText.trim(),
         status: status,
       }).then((res) => {
-        setTransaction(
+        serWareHouse(
           res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         );
         setData(res);
@@ -118,19 +113,19 @@ function Transaction() {
     } catch (error) {}
   };
 
-  const openCreateTransaction = () => {
-    navigate("/transaction/create-transaction");
+  const openCreateWareHouse = () => {
+    navigate("/warehouse/create-warehouse");
   };
 
-  const openEditTransaction = (id) => {
+  const openEditWareHouse = (id) => {
     scrollToTop();
-    navigate(`/transaction/edit-transaction/${id}`);
+    navigate(`/warehouse/edit-warehouse/${id}`);
   };
 
   return (
     <>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Giao dịch</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Nhà Kho</H1>
 
         <Box
           sx={{
@@ -148,7 +143,7 @@ function Transaction() {
             <Grid item md={4} xs={12}>
               <TextWrapper>
                 <Paragraph fontWeight={600} mb={1}>
-                  Tên người dùng
+                  Tên nhà kho
                 </Paragraph>
                 <LightTextField
                   fullWidth
@@ -176,9 +171,8 @@ function Transaction() {
                   }}
                 >
                   <MenuItem value={undefined}>Chọn trạng thái...</MenuItem>
-                  <MenuItem value={0}>Đang Chờ</MenuItem>
-                  <MenuItem value={1}>Đã Giao Dịch</MenuItem>
-                  <MenuItem value={2}>Từ Chối Giao Dịch</MenuItem>
+                  <MenuItem value={1}>Hoạt động</MenuItem>
+                  <MenuItem value={0}>Khoá</MenuItem>
                 </Select>
               </TextWrapper>
             </Grid>
@@ -198,8 +192,12 @@ function Transaction() {
                 justifyContent: "space-between",
               }}
             >
-              <Button variant="contained" onClick={filterTransaction}>
+              <Button variant="contained" onClick={filterNews}>
                 Tìm kiếm
+              </Button>
+
+              <Button variant="contained" onClick={openCreateWareHouse}>
+                Thêm
               </Button>
             </Grid>
           </Grid>
@@ -213,13 +211,22 @@ function Transaction() {
                   STT
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Tên
+                  Tên nhà kho
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Giá
+                  Số lượng tồn
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Ngày tạo
+                  Sức chứa
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  Địa chỉ
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  Số điện thoại
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  Email
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Trạng thái
@@ -231,8 +238,8 @@ function Transaction() {
             </TableHead>
 
             <TableBody>
-              {transaction?.length > 0 &&
-                transaction?.map((item, index) => {
+              {wareHouse?.length > 0 &&
+                wareHouse?.map((item, index) => {
                   return (
                     <TableRow key={item.id}>
                       <TableCell style={{ width: 30 }} align="center">
@@ -242,21 +249,29 @@ function Transaction() {
                         {item.name}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {number_to_price(Number(item.total_money))}
+                        {item.quantity}
                       </TableCell>
-
-                      <TableCell style={{ width: 200 }} align="center">
-                        {formatDateTime(item.createdAt)}
+                      <TableCell style={{ width: 100 }} align="center">
+                        {item.storageCapacity}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {convertStatusTransaction(Number(item.status))}
+                        {item.address}
+                      </TableCell>
+                      <TableCell style={{ width: 160 }} align="center">
+                        {item.phone}
+                      </TableCell>
+                      <TableCell style={{ width: 160 }} align="center">
+                        {item.email}
+                      </TableCell>
+                      <TableCell style={{ width: 160 }} align="center">
+                        {convertStatus(Number(item.status))}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         <Stack direction="row" spacing={1}>
                           <IconButton
                             aria-label="delete"
                             color="primary"
-                            onClick={() => openEditTransaction(item?._id)}
+                            onClick={() => openEditWareHouse(item?._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -273,7 +288,7 @@ function Transaction() {
                   );
                 })}
 
-              {!(transaction?.length > 0) && (
+              {!(wareHouse?.length > 0) && (
                 <TableRow style={{ height: 53 }}>
                   <TableCell colSpan={6} sx={{ textAlign: "center" }}>
                     Không có dữ liệu
@@ -299,10 +314,10 @@ function Transaction() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Bạn chắc chắn muốn xoá giao dịch?"}
+            {"Bạn chắc chắn muốn xoá nhà kho?"}
           </DialogTitle>
           <DialogActions>
-            <Button variant="contained" onClick={deleteTransaction}>
+            <Button variant="contained" onClick={deleteWareHouse}>
               Xoá
             </Button>
             <Button variant="outlined" onClick={handleClose}>
@@ -315,4 +330,4 @@ function Transaction() {
   );
 }
 
-export default Transaction;
+export default Warehouse;

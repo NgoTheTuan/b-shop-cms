@@ -61,8 +61,6 @@ function CreateNews() {
           (valueDescription &&
             draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
           null;
-        console.log(news_description);
-        console.log(values);
         try {
           await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
             await NewsService.create({

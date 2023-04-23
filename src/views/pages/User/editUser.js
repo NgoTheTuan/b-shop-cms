@@ -51,7 +51,6 @@ function EditUser() {
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
       if (fileUpload) {
         await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
           await UserService.edit({
@@ -98,7 +97,6 @@ function EditUser() {
     const getDetailUser = async () => {
       try {
         await UserService.getDetail(id).then((res) => {
-          console.log(res);
           if (res) {
             setValues({
               name: res?.username || "",

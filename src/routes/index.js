@@ -29,6 +29,17 @@ import EditNews from "../views/pages/News/editNews";
 import Transaction from "../views/pages/Transaction";
 import EditTransaction from "../views/pages/Transaction/editTransaction";
 
+import Contact from "../views/pages/Contact";
+import EditContact from "../views/pages/Contact/editContact";
+
+import Supplier from "../views/pages/Supplier";
+import CreateSupplier from "../views/pages/Supplier/createSupplier";
+import EditSupplier from "../views/pages/Supplier/editSupplier";
+
+import WareHouse from "../views/pages/WareHouse";
+import CreateWareHouse from "../views/pages/WareHouse/createWareHouse";
+import EditWareHouse from "../views/pages/WareHouse/editWareHouse";
+
 const publicRoutes = [
   { path: "/login", component: AuthLogin, layout: AuthLayout },
 ];
@@ -102,6 +113,37 @@ const privateRoutes = [
   {
     path: "/transaction/edit-transaction/:id",
     component: EditTransaction,
+    layout: DefaultLayout,
+  },
+
+  { path: "/contact", component: Contact, layout: DefaultLayout },
+  {
+    path: "/contact/edit-contact/:id",
+    component: EditContact,
+    layout: DefaultLayout,
+  },
+
+  { path: "/supplier", component: Supplier, layout: DefaultLayout },
+  {
+    path: "/supplier/create-supplier",
+    component: CreateSupplier,
+    layout: DefaultLayout,
+  },
+  {
+    path: "/supplier/edit-supplier/:id",
+    component: EditSupplier,
+    layout: DefaultLayout,
+  },
+
+  { path: "/warehouse", component: WareHouse, layout: DefaultLayout },
+  {
+    path: "/warehouse/create-warehouse",
+    component: CreateWareHouse,
+    layout: DefaultLayout,
+  },
+  {
+    path: "/warehouse/edit-warehouse/:id",
+    component: EditWareHouse,
     layout: DefaultLayout,
   },
 ];

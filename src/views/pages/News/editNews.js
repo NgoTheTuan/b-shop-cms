@@ -83,12 +83,10 @@ function EditNews() {
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
       const news_description =
         (valueDescription &&
           draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
         null;
-      console.log(news_description);
 
       try {
         if (fileUpload) {

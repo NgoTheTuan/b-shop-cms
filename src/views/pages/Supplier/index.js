@@ -17,12 +17,10 @@ import {
 } from "@mui/material";
 
 import TablePaginationActions from "../../../components/TablePaginationActions";
-import { TransactionService } from "../../../network/transactionService";
+import { SupplierService } from "../../../network/supplierService";
 import {
-  number_to_price,
+  convertStatusSupplier as convertStatus,
   scrollToTop,
-  formatDateTime,
-  convertStatusTransaction,
 } from "../../../ultis/Ultis";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
@@ -38,10 +36,10 @@ import LightTextField from "../../../components/LightTextField";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function Transaction() {
+function Supplier() {
   const navigate = useNavigate();
 
-  const [transaction, setTransaction] = useState([]);
+  const [supplier, setSupplier] = useState([]);
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -55,11 +53,11 @@ function Transaction() {
   const [filterText, setFilterText] = useState("");
   const [status, setStatus] = useState();
 
-  const getDataTransaction = async () => {
+  const getDataSupplier = async () => {
     try {
-      await TransactionService.getData().then((res) => {
+      await SupplierService.getData().then((res) => {
         if (res.length > 0) {
-          setTransaction(
+          setSupplier(
             res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
           );
           setData(res);
@@ -69,11 +67,11 @@ function Transaction() {
     } catch (error) {}
   };
   useEffect(() => {
-    getDataTransaction();
+    getDataSupplier();
   }, []);
 
   const handleChangePage = (page) => {
-    setTransaction(
+    setSupplier(
       data.slice(
         (page - 1) * rowsPerPage,
         (page - 1) * rowsPerPage + rowsPerPage
@@ -82,12 +80,12 @@ function Transaction() {
     setPage(page - 1);
   };
 
-  const deleteTransaction = async () => {
+  const deleteNews = async () => {
     try {
-      await TransactionService.delete(idDelete).then((res) => {
+      await SupplierService.delete(idDelete).then((res) => {
         toast.success("Xoá thành công!");
         if (res) {
-          getDataTransaction();
+          getDataSupplier();
         }
         setOpen(false);
       });
@@ -103,13 +101,13 @@ function Transaction() {
     setOpen(false);
   };
 
-  const filterTransaction = async () => {
+  const filterNews = async () => {
     try {
-      await TransactionService.filter({
-        nameFilter: filterText.trim(),
+      await SupplierService.filter({
+        companyFilter: filterText.trim(),
         status: status,
       }).then((res) => {
-        setTransaction(
+        setSupplier(
           res.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         );
         setData(res);
@@ -118,19 +116,19 @@ function Transaction() {
     } catch (error) {}
   };
 
-  const openCreateTransaction = () => {
-    navigate("/transaction/create-transaction");
+  const openCreateNews = () => {
+    navigate("/supplier/create-supplier");
   };
 
-  const openEditTransaction = (id) => {
+  const openEditNews = (id) => {
     scrollToTop();
-    navigate(`/transaction/edit-transaction/${id}`);
+    navigate(`/supplier/edit-supplier/${id}`);
   };
 
   return (
     <>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Giao dịch</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Nhà cung cấp</H1>
 
         <Box
           sx={{
@@ -148,7 +146,7 @@ function Transaction() {
             <Grid item md={4} xs={12}>
               <TextWrapper>
                 <Paragraph fontWeight={600} mb={1}>
-                  Tên người dùng
+                  Tên công ty
                 </Paragraph>
                 <LightTextField
                   fullWidth
@@ -176,9 +174,8 @@ function Transaction() {
                   }}
                 >
                   <MenuItem value={undefined}>Chọn trạng thái...</MenuItem>
-                  <MenuItem value={0}>Đang Chờ</MenuItem>
-                  <MenuItem value={1}>Đã Giao Dịch</MenuItem>
-                  <MenuItem value={2}>Từ Chối Giao Dịch</MenuItem>
+                  <MenuItem value={1}>Cung cấp</MenuItem>
+                  <MenuItem value={0}>Dừng cung cấp</MenuItem>
                 </Select>
               </TextWrapper>
             </Grid>
@@ -198,8 +195,12 @@ function Transaction() {
                 justifyContent: "space-between",
               }}
             >
-              <Button variant="contained" onClick={filterTransaction}>
+              <Button variant="contained" onClick={filterNews}>
                 Tìm kiếm
+              </Button>
+
+              <Button variant="contained" onClick={openCreateNews}>
+                Thêm
               </Button>
             </Grid>
           </Grid>
@@ -213,13 +214,16 @@ function Transaction() {
                   STT
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Tên
+                  Tên công ty
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Giá
+                  Địa chỉ
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
-                  Ngày tạo
+                  Số điện thoại
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  Email
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Trạng thái
@@ -231,32 +235,34 @@ function Transaction() {
             </TableHead>
 
             <TableBody>
-              {transaction?.length > 0 &&
-                transaction?.map((item, index) => {
+              {supplier?.length > 0 &&
+                supplier?.map((item, index) => {
                   return (
                     <TableRow key={item.id}>
                       <TableCell style={{ width: 30 }} align="center">
                         {page * rowsPerPage + (index + 1)}
                       </TableCell>
                       <TableCell component="th" scope="item" align="center">
-                        {item.name}
+                        {item.company}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {number_to_price(Number(item.total_money))}
-                      </TableCell>
-
-                      <TableCell style={{ width: 200 }} align="center">
-                        {formatDateTime(item.createdAt)}
+                        {item.address}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
-                        {convertStatusTransaction(Number(item.status))}
+                        {item.phone}
+                      </TableCell>
+                      <TableCell style={{ width: 160 }} align="center">
+                        {item.email}
+                      </TableCell>
+                      <TableCell style={{ width: 160 }} align="center">
+                        {convertStatus(Number(item.status))}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         <Stack direction="row" spacing={1}>
                           <IconButton
                             aria-label="delete"
                             color="primary"
-                            onClick={() => openEditTransaction(item?._id)}
+                            onClick={() => openEditNews(item?._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -273,7 +279,7 @@ function Transaction() {
                   );
                 })}
 
-              {!(transaction?.length > 0) && (
+              {!(supplier?.length > 0) && (
                 <TableRow style={{ height: 53 }}>
                   <TableCell colSpan={6} sx={{ textAlign: "center" }}>
                     Không có dữ liệu
@@ -299,10 +305,10 @@ function Transaction() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Bạn chắc chắn muốn xoá giao dịch?"}
+            {"Bạn chắc chắn muốn xoá sản phẩm?"}
           </DialogTitle>
           <DialogActions>
-            <Button variant="contained" onClick={deleteTransaction}>
+            <Button variant="contained" onClick={deleteNews}>
               Xoá
             </Button>
             <Button variant="outlined" onClick={handleClose}>
@@ -315,4 +321,4 @@ function Transaction() {
   );
 }
 
-export default Transaction;
+export default Supplier;

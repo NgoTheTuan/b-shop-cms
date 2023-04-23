@@ -31,9 +31,7 @@ function EditTransaction() {
     const getDetailTransaction = async () => {
       try {
         await TransactionService.getDetail(id).then((res) => {
-          console.log(res);
           if (res) {
-            console.log(res?.products);
             setTransactionProduct(res);
           }
         });

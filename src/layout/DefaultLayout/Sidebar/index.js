@@ -55,7 +55,9 @@ function Sidebar({ showMobileSideBar, closeMobileSideBar }) {
         <img src={logo} alt="B Shop Logo" width={60} />
       </StyledListItemButton>
 
-      <ScrollBar style={{ maxHeight: "calc(100% - 50px)" }}>
+      <ScrollBar
+        style={{ maxHeight: "calc(100% - 50px)", overflowY: "scroll" }}
+      >
         {topMenuList.map((nav, index) => (
           <Tooltip title={nav.title} placement="right" key={index}>
             <StyledListItemButton

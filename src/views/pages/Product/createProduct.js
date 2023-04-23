@@ -13,6 +13,8 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import FormHelperText from "@mui/material/FormHelperText";
 import { CategoryService } from "../../../network/categoryService";
+import { SupplierService } from "../../../network/supplierService";
+import { WarehouseService } from "../../../network/wareHouseService";
 import { ProductService } from "../../../network/productService";
 import { SettingService } from "../../../network/settingService";
 import { convertFileToBase64, scrollToTop } from "../../../ultis/Ultis";
@@ -26,6 +28,8 @@ function CreateProduct() {
   const navigate = useNavigate();
   const [categoryId, setCategoryId] = useState();
   const [categoryData, setCategoryData] = useState();
+  const [supplierData, setSupplierData] = useState();
+  const [wareHouseData, setWareHouseData] = useState();
 
   const [checkImg, setCheckImg] = useState(false);
   const [fileUpload, setFileUpload] = useState();
@@ -38,14 +42,18 @@ function CreateProduct() {
   let initialValues = {
     name: "",
     description: "",
+    quantity: 0,
     price: undefined,
     discount: 0,
     categoryId: "",
+    supplierId: "",
+    wareHouseId: "",
     image: "",
   };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Không được để trống tên sản phẩm"),
+    quantity: Yup.number().min(0, "Số lượng lớn hơn hoặc bằng 0"),
     price: Yup.number()
       .required("Không được để trống giá sản phẩm")
       .min(0, "Giá lớn hơn hoặc bằng 0"),
@@ -53,6 +61,8 @@ function CreateProduct() {
       .min(0, "Giảm giá lớn hơn hoặc bằng 0")
       .max(99, "Giảm giá nhỏ hơn hoặc bằng 99"),
     categoryId: Yup.string().required("Không được để trống thể loại sản phẩm"),
+    supplierId: Yup.string().required("Không được để trống nhà cung cấp"),
+    wareHouseId: Yup.string().required("Không được để trống nhà kho"),
     image: Yup.string().required("Chọn hình ảnh cho sản phẩm"),
   });
 
@@ -73,28 +83,39 @@ function CreateProduct() {
           (valueDescription &&
             draftToHtml(convertToRaw(valueDescription?.getCurrentContent()))) ||
           null;
-        console.log(product_description);
-        console.log(values);
-        console.log(categoryId);
 
         try {
-          await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductService.create({
-              name: values.name || "",
-              description: product_description || "",
-              price: Number(values.price) || 0,
-              discount: Number(values.discount) || 0,
-              image: res?.url || "",
-              categoryId: values.categoryId || 0,
-            }).then((res) => {
-              if (res) {
-                toast.success("Thêm mới thành công!");
-                scrollToTop();
-                navigate("/product");
-              } else {
-                toast.error("Thêm mới không thành công.");
-              }
-            });
+          await WarehouseService.changeQuantity({
+            wareHouseId: values.wareHouseId || 0,
+            quantity: Number(values.quantity) || 0,
+          }).then(async (resWareHouse) => {
+            if (resWareHouse?.success) {
+              await SettingService.uploadCoverImg(fileUpload).then(
+                async (res) => {
+                  await ProductService.create({
+                    name: values.name || "",
+                    description: product_description || "",
+                    quantity: Number(values.quantity) || 0,
+                    price: Number(values.price) || 0,
+                    discount: Number(values.discount) || 0,
+                    image: res?.url || "",
+                    categoryId: values.categoryId || 0,
+                    supplierId: values.supplierId || 0,
+                    wareHouseId: values.wareHouseId || 0,
+                  }).then(async (res) => {
+                    if (res) {
+                      toast.success("Thêm mới thành công!");
+                      scrollToTop();
+                      navigate("/product");
+                    } else {
+                      toast.error("Thêm mới không thành công.");
+                    }
+                  });
+                }
+              );
+            } else {
+              toast.success(resWareHouse?.message);
+            }
           });
         } catch {}
       }
@@ -112,6 +133,32 @@ function CreateProduct() {
       } catch (error) {}
     };
     getDataCategory();
+    const getDataSupplier = async () => {
+      try {
+        await SupplierService.filter({
+          companyFilter: "",
+          status: 1,
+        }).then((res) => {
+          if (res.length > 0) {
+            setSupplierData(res);
+          }
+        });
+      } catch (error) {}
+    };
+    getDataSupplier();
+    const getDataWareHouse = async () => {
+      try {
+        await WarehouseService.filter({
+          nameFilter: "",
+          status: 1,
+        }).then((res) => {
+          if (res.length > 0) {
+            setWareHouseData(res);
+          }
+        });
+      } catch (error) {}
+    };
+    getDataWareHouse();
   }, []);
 
   const handleFileUpload = (file) => {
@@ -165,6 +212,24 @@ function CreateProduct() {
                 editorState={valueDescription}
                 onEditorStateChange={(data) => setValueDescription(data)}
                 name="description"
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Số lượng
+              </Paragraph>
+
+              <LightTextField
+                fullWidth
+                name="quantity"
+                type="number"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                error={Boolean(touched.quantity && errors.quantity)}
+                helperText={touched.quantity && errors.quantity}
               />
             </TextWrapper>
           </Grid>
@@ -232,6 +297,72 @@ function CreateProduct() {
               </Select>
               <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
                 {touched.categoryId && errors.categoryId}
+              </FormHelperText>
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Nhà cung cấp <span style={{ color: "red" }}>*</span>
+              </Paragraph>
+              <Select
+                fullWidth
+                id="demo-simple-select"
+                onChange={handleChange}
+                name="supplierId"
+                error={Boolean(touched.supplierId && errors.supplierId)}
+                sx={{
+                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
+                    borderRadius: "8px",
+                    border: "2px solid #E5EAF2",
+                  },
+                }}
+              >
+                {supplierData?.length > 0 &&
+                  supplierData?.map((item) => {
+                    return (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.company}
+                      </MenuItem>
+                    );
+                  })}
+              </Select>
+              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
+                {touched.supplierId && errors.supplierId}
+              </FormHelperText>
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Nhà kho <span style={{ color: "red" }}>*</span>
+              </Paragraph>
+              <Select
+                fullWidth
+                id="demo-simple-select"
+                onChange={handleChange}
+                name="wareHouseId"
+                error={Boolean(touched.wareHouseId && errors.wareHouseId)}
+                sx={{
+                  "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
+                    borderRadius: "8px",
+                    border: "2px solid #E5EAF2",
+                  },
+                }}
+              >
+                {wareHouseData?.length > 0 &&
+                  wareHouseData?.map((item) => {
+                    return (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    );
+                  })}
+              </Select>
+              <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
+                {touched.wareHouseId && errors.wareHouseId}
               </FormHelperText>
             </TextWrapper>
           </Grid>

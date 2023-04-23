@@ -44,8 +44,6 @@ function CreateProduct() {
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
-
       try {
         await CategoryService.create({
           title: values.title || "",

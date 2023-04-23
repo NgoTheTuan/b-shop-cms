@@ -119,6 +119,62 @@ export const convertStatusTransaction = (status) => {
   }
 };
 
+export const convertStatusContact = (status) => {
+  if (status === 1) {
+    return (
+      <Chip
+        label="Đã liên hệ"
+        color="success"
+        sx={{
+          color: "#28c76f",
+          backgroundColor: "rgba(40,199,111,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  } else if (status === 0) {
+    return (
+      <Chip
+        label="Chưa liên hệ"
+        color="error"
+        sx={{
+          color: "#ea5455",
+          backgroundColor: "rgba(234,84,85,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  }
+};
+
+export const convertStatusSupplier = (status) => {
+  if (status === 1) {
+    return (
+      <Chip
+        label="Cung cấp"
+        color="success"
+        sx={{
+          color: "#28c76f",
+          backgroundColor: "rgba(40,199,111,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  } else if (status === 0) {
+    return (
+      <Chip
+        label="Dừng cung cấp"
+        color="error"
+        sx={{
+          color: "#ea5455",
+          backgroundColor: "rgba(234,84,85,.22)",
+          fontWeight: "600",
+        }}
+      />
+    );
+  }
+};
+
 export const htmlToDraftUtil = (draftContent) => {
   const blocksFromHtml = htmlToDraft(draftContent);
   const { contentBlocks, entityMap } = blocksFromHtml;

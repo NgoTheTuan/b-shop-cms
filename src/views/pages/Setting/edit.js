@@ -31,6 +31,8 @@ function EditSetting() {
     shopEmail: "",
     shopMap: "",
     shopShip: 0,
+    shopBank: "",
+    shopAccountNumber: "",
   };
 
   useEffect(() => {
@@ -45,6 +47,8 @@ function EditSetting() {
             values.shopEmail = setting?.shop_email || "";
             values.shopShip = setting?.shop_ship || 0;
             values.shopMap = setting?.shop_map || "";
+            values.shopBank = setting?.shop_bank || "";
+            values.shopAccountNumber = setting?.shop_accountNumber || "";
 
             setValueContact(htmlToDraftUtil(setting?.shop_contact || " "));
 
@@ -81,6 +85,8 @@ function EditSetting() {
                 shop_address: values.shopAdress,
                 shop_phone: values.shopPhone,
                 shop_email: values.shopEmail,
+                shop_bank: values.shopBank,
+                shop_accountNumber: values.shopAccountNumber,
                 shop_ship: values.shopShip,
                 shop_map: values.shopMap,
                 shop_contact: contact || "",
@@ -183,6 +189,44 @@ function EditSetting() {
                 value={values.shopShip || ""}
                 error={Boolean(touched.shopShip && errors.shopShip)}
                 helperText={touched.shopShip && errors.shopShip}
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Ngăn hàng
+              </Paragraph>
+              <LightTextField
+                fullWidth
+                name="shopBank"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.shopBank || ""}
+                error={Boolean(touched.shopShip && errors.shopBank)}
+                helperText={touched.shopBank && errors.shopBank}
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Số tài khoản
+              </Paragraph>
+              <LightTextField
+                fullWidth
+                name="shopAccountNumber"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.shopAccountNumber || ""}
+                error={Boolean(
+                  touched.shopAccountNumber && errors.shopAccountNumber
+                )}
+                helperText={
+                  touched.shopAccountNumber && errors.shopAccountNumber
+                }
               />
             </TextWrapper>
           </Grid>

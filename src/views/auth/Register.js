@@ -55,7 +55,6 @@ function Register() {
       initialValues,
       validationSchema,
       onSubmit: async (values) => {
-        console.log(values);
         try {
           await AuthService.register({
             username: values.username,

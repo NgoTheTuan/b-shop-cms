@@ -11,6 +11,9 @@ import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import NewspaperOutlinedIcon from "@mui/icons-material/NewspaperOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import GridViewIcon from "@mui/icons-material/GridView";
+import ContactPhoneOutlinedIcon from "@mui/icons-material/ContactPhoneOutlined";
+import SupervisedUserCircleOutlinedIcon from "@mui/icons-material/SupervisedUserCircleOutlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
   LoginIcon,
@@ -24,4 +27,7 @@ export default {
   NewspaperOutlinedIcon,
   PersonOutlineOutlinedIcon,
   GridViewIcon,
+  ContactPhoneOutlinedIcon,
+  SupervisedUserCircleOutlinedIcon,
+  WarehouseOutlinedIcon,
 };

@@ -1,34 +1,53 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import WrapperPages from "../../../components/Wrapper";
-import { Box, Grid, Button } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Paper,
+  TableHead,
+  Box,
+  Grid,
+  Button,
+} from "@mui/material";
+
 import { TextWrapper } from "../../../components/StyledComponents";
 import { Paragraph, H1 } from "../../../components/Typography";
 import LightTextField from "../../../components/LightTextField";
+import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import FormHelperText from "@mui/material/FormHelperText";
-import { CategoriesService } from "../../../network/categoriesService";
+
+import { ContactService } from "../../../network/contactService";
+
 import { scrollToTop } from "../../../ultis/Ultis";
 import { useParams } from "react-router-dom";
 
-function EditCategories() {
+function EditContact() {
   const { id } = useParams();
+
+  const [product, setProduct] = useState();
+  const [setting, setSetting] = useState();
   const navigate = useNavigate();
+  const [categoriesId, setCategoriesId] = useState();
+  const [categoriesData, setCategoriesData] = useState();
+  const [status, setStatus] = useState();
 
   let initialValues = {
-    title: "",
+    email: "",
+    name: "",
     status: "",
   };
 
-  const validationSchema = Yup.object().shape({
-    title: Yup.string()
-      .required("Không được để trống tên danh mục")
-      .min(3, "Tên danh mục phải lớn hơn 3 kí tự!"),
-  });
+  const validationSchema = Yup.object().shape({});
 
   const {
     errors,
@@ -37,21 +56,21 @@ function EditCategories() {
     handleBlur,
     handleChange,
     handleSubmit,
+    setErrors,
     setValues,
   } = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
       try {
-        await CategoriesService.edit({
-          categoriesId: String(id),
-          title: values.title || "",
+        await ContactService.edit({
+          contactId: String(id),
           status: values.status,
         }).then((res) => {
           if (res) {
             toast.success("Cập nhật thành công!");
             scrollToTop();
-            navigate("/categories");
+            navigate("/contact");
           } else {
             toast.error("Cập nhật không thành công.");
           }
@@ -61,40 +80,53 @@ function EditCategories() {
   });
 
   useEffect(() => {
-    const getDetailCategories = async () => {
+    const getDetailContact = async () => {
       try {
-        await CategoriesService.getDetail(id).then((res) => {
+        await ContactService.getDetail(id).then((res) => {
           if (res) {
             setValues({
-              title: res?.title || "",
+              email: res?.email || "",
+              name: res?.name || "",
               status: res?.status || "",
             });
           }
         });
       } catch (error) {}
     };
-    getDetailCategories();
+    getDetailContact();
   }, []);
 
   return (
     <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
       <WrapperPages>
-        <H1 sx={{ padding: "20px 30px 50px" }}>Chỉnh sửa danh mục</H1>
+        <H1 sx={{ padding: "20px 30px 50px" }}>Chỉnh sửa Liên Hệ</H1>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextWrapper>
               <Paragraph fontWeight={600} mb={1}>
-                Tên danh mục <span style={{ color: "red" }}>*</span>
+                Họ và Tên <span style={{ color: "red" }}>*</span>
               </Paragraph>
               <LightTextField
                 fullWidth
-                name="title"
+                name="name"
                 type="text"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                error={Boolean(touched.title && errors.title)}
-                helperText={touched.title && errors.title}
-                value={values?.title || ""}
+                disabled
+                value={values?.name || ""}
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Email <span style={{ color: "red" }}>*</span>
+              </Paragraph>
+              <LightTextField
+                fullWidth
+                name="email"
+                type="text"
+                disabled
+                value={values?.email || ""}
               />
             </TextWrapper>
           </Grid>
@@ -118,8 +150,8 @@ function EditCategories() {
                   },
                 }}
               >
-                <MenuItem value={1}>Hoạt động</MenuItem>
-                <MenuItem value={0}>Khoá</MenuItem>
+                <MenuItem value={1}>Đã liên hệ</MenuItem>
+                <MenuItem value={0}>Chưa liên hệ</MenuItem>
               </Select>
               <FormHelperText error sx={{ margin: "3px 14px 0 14px" }}>
                 {touched.status && errors.status}
@@ -138,7 +170,7 @@ function EditCategories() {
           <Button type="submit" variant="contained">
             Cập nhật
           </Button>
-          <Button variant="contained" onClick={() => navigate("/categories")}>
+          <Button variant="contained" onClick={() => navigate("/contact")}>
             Huỷ
           </Button>
         </Box>
@@ -147,4 +179,4 @@ function EditCategories() {
   );
 }
 
-export default EditCategories;
+export default EditContact;
