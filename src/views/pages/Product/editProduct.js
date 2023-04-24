@@ -1,25 +1,11 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import WrapperPages from "../../../components/Wrapper";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  Paper,
-  TableHead,
-  Box,
-  Grid,
-  Button,
-} from "@mui/material";
-
+import { Box, Grid, Button } from "@mui/material";
 import { TextWrapper } from "../../../components/StyledComponents";
 import { Paragraph, H1 } from "../../../components/Typography";
 import LightTextField from "../../../components/LightTextField";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -29,18 +15,16 @@ import { CategoryService } from "../../../network/categoryService";
 import { ProductService } from "../../../network/productService";
 import { SettingService } from "../../../network/settingService";
 import { SupplierService } from "../../../network/supplierService";
-import { WarehouseService } from "../../../network/wareHouseService";
 import {
   convertFileToBase64,
   scrollToTop,
   htmlToDraftUtil,
 } from "../../../ultis/Ultis";
-
 import { Editor } from "react-draft-wysiwyg";
 import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { useParams } from "react-router-dom";
-import { UploadFile } from "@mui/icons-material";
+import { WarehouseService } from "../../../network/wareHouseService";
 
 function EditProduct() {
   const { id } = useParams();
@@ -108,50 +92,62 @@ function EditProduct() {
         null;
 
       try {
-        if (fileUpload) {
-          await SettingService.uploadCoverImg(fileUpload).then(async (res) => {
-            await ProductService.edit({
-              productId: String(id),
-              name: values.name || "",
-              description: product_description || "",
-              price: Number(values.price) || 0,
-              discount: Number(values.discount) || 0,
-              image: res?.url || "",
-              categoryId: values.categoryId || 0,
-              status: values.status,
-            }).then((res) => {
-              if (res) {
-                toast.success("Cập nhật thành công!");
-                scrollToTop();
-                navigate("/product");
-              } else {
-                toast.error("Cập nhật không thành công.");
-              }
-            });
-          });
-        } else {
-          await ProductService.edit({
-            productId: String(id),
-            name: values.name || "",
-            description: product_description || "",
-            quantity: Number(values.quantity) || 0,
-            price: Number(values.price) || 0,
-            discount: Number(values.discount) || 0,
-            image: values?.image || "",
-            categoryId: values.categoryId || "",
-            supplierId: values.supplierId || "",
-            wareHouseId: values.wareHouseId || "",
-            status: values.status,
-          }).then((res) => {
-            if (res) {
-              toast.success("Cập nhật thành công!");
-              scrollToTop();
-              navigate("/product");
+        await WarehouseService.editQuantityProduct({
+          productId: String(id),
+          wareHouseId: values?.wareHouseId,
+          quantityNews: Number(values.quantity),
+          quantity: product?.quantity,
+        }).then(async (res) => {
+          if (res?.success) {
+            if (fileUpload) {
+              await SettingService.uploadCoverImg(fileUpload).then(
+                async (res) => {
+                  await ProductService.edit({
+                    productId: String(id),
+                    name: values.name || "",
+                    description: product_description || "",
+                    price: Number(values.price) || 0,
+                    discount: Number(values.discount) || 0,
+                    image: res?.url || "",
+                    categoryId: values.categoryId || 0,
+                    wareHouseId: values?.wareHouseId,
+                    status: values.status,
+                  }).then((res) => {
+                    if (res) {
+                      toast.success("Cập nhật thành công!");
+                      scrollToTop();
+                      navigate("/product");
+                    } else {
+                      toast.error("Cập nhật không thành công.");
+                    }
+                  });
+                }
+              );
             } else {
-              toast.error("Cập nhật không thành công.");
+              await ProductService.edit({
+                productId: String(id),
+                name: values.name || "",
+                description: product_description || "",
+                price: Number(values.price) || 0,
+                discount: Number(values.discount) || 0,
+                image: values?.image || "",
+                categoryId: values.categoryId || "",
+                wareHouseId: values.wareHouseId || "",
+                status: values.status,
+              }).then((res) => {
+                if (res) {
+                  toast.success("Cập nhật thành công!");
+                  scrollToTop();
+                  navigate("/product");
+                } else {
+                  toast.error("Cập nhật không thành công.");
+                }
+              });
             }
-          });
-        }
+          } else {
+            toast.error(res?.message);
+          }
+        });
       } catch {}
     },
   });
@@ -172,8 +168,7 @@ function EditProduct() {
       try {
         await ProductService.getDetail(id).then((res) => {
           if (res) {
-            // setProduct(res);
-            // setUrlImgUpdate(res?.image || "");
+            setProduct(res);
             setValueDescription(htmlToDraftUtil(res?.description || " "));
             setValues({
               name: res?.name || "",
@@ -291,7 +286,6 @@ function EditProduct() {
                 type="number"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                disabled={true}
                 error={Boolean(touched.quantity && errors.quantity)}
                 helperText={touched.quantity && errors.quantity}
                 value={values?.quantity}
@@ -415,7 +409,6 @@ function EditProduct() {
                 onChange={handleChange}
                 name="wareHouseId"
                 value={values?.wareHouseId || 0}
-                disabled={true}
                 error={Boolean(touched.wareHouseId && errors.wareHouseId)}
                 sx={{
                   "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {

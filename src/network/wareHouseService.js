@@ -103,4 +103,19 @@ export const WarehouseService = {
       });
     });
   },
+  editQuantityProduct: async (data) => {
+    return new Promise((resolve) => {
+      Request.send({
+        path: "/warehouse/quantity-edit",
+        method: "POST",
+        data: data,
+      }).then((res) => {
+        if (res.success) {
+          return resolve(res);
+        } else {
+          return resolve(res);
+        }
+      });
+    });
+  },
 };
