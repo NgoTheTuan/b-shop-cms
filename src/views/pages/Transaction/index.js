@@ -216,6 +216,9 @@ function Transaction() {
                   Tên
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  Thanh toán
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">
                   Giá
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }} align="center">
@@ -240,6 +243,11 @@ function Transaction() {
                       </TableCell>
                       <TableCell component="th" scope="item" align="center">
                         {item.name}
+                      </TableCell>
+                      <TableCell component="th" scope="item" align="center">
+                        {item.payment_type === "offline"
+                          ? "Thanh toán khi nhận hàng"
+                          : "Chuyển khoản"}
                       </TableCell>
                       <TableCell style={{ width: 160 }} align="center">
                         {number_to_price(Number(item.total_money))}

@@ -73,6 +73,19 @@ function EditTransaction() {
         <Grid xs={12} sx={{ paddingTop: "0px", paddingLeft: "16px" }}>
           <Box display={"flex"} flexDirection={"row"}>
             <H4 sx={{ width: "200px", display: "flex", alignItems: "center" }}>
+              Thanh toán
+            </H4>
+            <p>
+              :{" "}
+              {transactionProduct?.payment_type === "offline"
+                ? "Thanh toán khi nhận hàng"
+                : " Chuyển khoản " || ""}
+            </p>
+          </Box>
+        </Grid>
+        <Grid xs={12} sx={{ paddingTop: "0px", paddingLeft: "16px" }}>
+          <Box display={"flex"} flexDirection={"row"}>
+            <H4 sx={{ width: "200px", display: "flex", alignItems: "center" }}>
               Email
             </H4>
             <p>: {transactionProduct?.email || ""}</p>

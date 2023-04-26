@@ -32,6 +32,7 @@ function EditSetting() {
     shopMap: "",
     shopShip: 0,
     shopBank: "",
+    shopBankName: "",
     shopAccountNumber: "",
   };
 
@@ -48,6 +49,7 @@ function EditSetting() {
             values.shopShip = setting?.shop_ship || 0;
             values.shopMap = setting?.shop_map || "";
             values.shopBank = setting?.shop_bank || "";
+            values.shopBankName = setting?.shop_bankName || "";
             values.shopAccountNumber = setting?.shop_accountNumber || "";
 
             setValueContact(htmlToDraftUtil(setting?.shop_contact || " "));
@@ -87,6 +89,7 @@ function EditSetting() {
                 shop_email: values.shopEmail,
                 shop_bank: values.shopBank,
                 shop_accountNumber: values.shopAccountNumber,
+                shop_bankName: values.shopBankName,
                 shop_ship: values.shopShip,
                 shop_map: values.shopMap,
                 shop_contact: contact || "",
@@ -227,6 +230,23 @@ function EditSetting() {
                 helperText={
                   touched.shopAccountNumber && errors.shopAccountNumber
                 }
+              />
+            </TextWrapper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextWrapper>
+              <Paragraph fontWeight={600} mb={1}>
+                Chủ tài khoản
+              </Paragraph>
+              <LightTextField
+                fullWidth
+                name="shopBankName"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.shopBankName || ""}
+                error={Boolean(touched.shopBankName && errors.shopBankName)}
+                helperText={touched.shopBankName && errors.shopBankName}
               />
             </TextWrapper>
           </Grid>

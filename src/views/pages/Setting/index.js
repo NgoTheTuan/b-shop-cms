@@ -211,6 +211,15 @@ function Setting() {
         <Grid item xs={12} sx={{ margin: "10px 0px" }}>
           <TextWrapper>
             <Paragraph fontWeight={600} mb={1}>
+              Chủ tài khoản
+            </Paragraph>
+            <TextInfo>{setting?.section?.shop_bankName || ""}</TextInfo>
+          </TextWrapper>
+        </Grid>
+
+        <Grid item xs={12} sx={{ margin: "10px 0px" }}>
+          <TextWrapper>
+            <Paragraph fontWeight={600} mb={1}>
               Phí Ship
             </Paragraph>
             <TextInfo>
