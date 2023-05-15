@@ -23,7 +23,6 @@ const TopSelling = () => {
       });
     })();
   }, []);
-  console.log(data);
   return (
     <Card sx={{ padding: "2rem", height: "100%" }}>
       <H5>Top selling Products</H5>
